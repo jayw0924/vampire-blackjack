@@ -1,5 +1,5 @@
 import { freshShoe, handValue, isBlackjack, shuffle } from './cards.js';
-import { RULES, outcomeFor, stakeReturned } from './rules.js';
+import { RULES, canSplitCards, outcomeFor, stakeReturned } from './rules.js';
 
 function baseState(fields) {
   return {
@@ -48,7 +48,22 @@ export function legalActions(game) {
     actions.push('withdraw');
     return actions;
   }
-  if (game.phase === 'player') return [];
+  if (game.phase === 'player') {
+    const hand = game.playerHands[game.activeHand];
+    const actions = [];
+    if (!hand.stood && !hand.busted) actions.push('hit', 'stand');
+    const opening = hand.cards.length === 2;
+    if (opening && !hand.fromSplit && game.blood >= hand.bet) actions.push('double');
+    if (
+      game.playerHands.length === 1 &&
+      opening &&
+      canSplitCards(hand.cards[0], hand.cards[1]) &&
+      game.blood >= hand.bet
+    ) {
+      actions.push('split');
+    }
+    return actions;
+  }
   if (game.phase === 'settled') return ['next_hand'];
   return [];
 }
@@ -143,4 +158,50 @@ export function deal(game) {
   };
   if (isBlackjack(playerCards) || isBlackjack(dealerCards)) return settle(next);
   return { ...next, phase: 'player', messageKey: 'player_turn' };
+}
+
+function advance(game) {
+  const hands = game.playerHands;
+  const current = hands[game.activeHand];
+  if (!current.stood && !current.busted) {
+    return { ...game, phase: 'player', messageKey: 'player_turn' };
+  }
+  for (let i = game.activeHand + 1; i < hands.length; i += 1) {
+    if (!hands[i].stood && !hands[i].busted) {
+      return { ...game, activeHand: i, phase: 'player', messageKey: 'player_turn' };
+    }
+  }
+  return resolveDealer(game);
+}
+
+function resolveDealer(game) {
+  let shoe = game.shoe;
+  let dealerCards = game.dealerCards.map((c) => ({ rank: c.rank, suit: c.suit }));
+  if (game.playerHands.some((hand) => !hand.busted)) {
+    while (handValue(dealerCards) < 17) {
+      const drawn = drawOne(shoe);
+      shoe = drawn.shoe;
+      dealerCards = dealerCards.concat(drawn.drawn);
+    }
+  }
+  return settle({ ...game, shoe, dealerCards });
+}
+
+export function hit(game) {
+  assertAction(game, 'hit');
+  const hands = game.playerHands.map((hand) => ({ ...hand, cards: hand.cards.slice() }));
+  const hand = hands[game.activeHand];
+  const drawn = drawOne(game.shoe);
+  hand.cards = hand.cards.concat(drawn.drawn);
+  const value = handValue(hand.cards);
+  hand.busted = value > 21;
+  hand.stood = hand.busted || value >= 21;
+  return advance({ ...game, shoe: drawn.shoe, playerHands: hands });
+}
+
+export function stand(game) {
+  assertAction(game, 'stand');
+  const hands = game.playerHands.map((hand) => ({ ...hand, cards: hand.cards.slice() }));
+  hands[game.activeHand].stood = true;
+  return advance({ ...game, playerHands: hands });
 }

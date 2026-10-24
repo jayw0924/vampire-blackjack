@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { betDown, betUp, createGame, deal, withdraw } from '../src/game.js';
+import { betDown, betUp, createGame, deal, hit, stand, withdraw } from '../src/game.js';
 import { cards } from './helpers.js';
 
 test('a new evening starts at 20 blood with a stake of 2', () => {
@@ -76,4 +76,33 @@ test('both naturals push', () => {
   assert.equal(dealt.lastResult.net, 0);
   assert.equal(dealt.lastResult.hands[0].outcome, 'push');
   assert.equal(dealt.messageKey, 'push');
+});
+
+test('a bust loses immediately and the dealer does not draw', () => {
+  let game = deal(createGame({ shoe: cards('10S', '5H', '6D', '9C', 'KC', 'AS') }));
+  assert.equal(game.phase, 'player');
+  game = hit(game);
+  assert.equal(game.phase, 'settled');
+  assert.equal(game.playerHands[0].busted, true);
+  assert.equal(game.blood, 18);
+  assert.equal(game.lastResult.net, -2);
+  assert.equal(game.messageKey, 'player_bust');
+  assert.equal(game.dealerCards.length, 2);
+  assert.deepEqual(game.shoe[0], { rank: 'A', suit: 'S' });
+});
+
+test('the dealer hits 16 and stands on soft 17', () => {
+  let hits = deal(createGame({ shoe: cards('10S', '10H', '8D', '6C', '2H') }));
+  hits = stand(hits);
+  assert.equal(hits.dealerCards.length, 3);
+  assert.equal(hits.blood, 20);
+  assert.equal(hits.lastResult.hands[0].outcome, 'push');
+  assert.equal(hits.messageKey, 'push');
+
+  let soft = deal(createGame({ shoe: cards('10S', 'AH', 'QS', '6D', 'KH') }));
+  soft = stand(soft);
+  assert.equal(soft.dealerCards.length, 2);
+  assert.deepEqual(soft.shoe[0], { rank: 'K', suit: 'H' });
+  assert.equal(soft.blood, 22);
+  assert.equal(soft.messageKey, 'player_win');
 });
