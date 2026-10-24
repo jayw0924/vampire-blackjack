@@ -28,3 +28,36 @@ export function handValue(cards) {
   }
   return total;
 }
+
+export function freshShoe() {
+  const shoe = [];
+  for (const suit of SUITS) {
+    for (const rank of RANKS) {
+      shoe.push(card(rank, suit));
+    }
+  }
+  return shoe;
+}
+
+export function nextRng(rngState) {
+  let a = rngState >>> 0;
+  a = (a + 0x6d2b79f5) | 0;
+  let t = Math.imul(a ^ (a >>> 15), 1 | a);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  const roll = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  return { roll, rngState: a >>> 0 };
+}
+
+export function shuffle(cards, rngState) {
+  const next = cards.slice();
+  let state = rngState >>> 0;
+  for (let i = next.length - 1; i > 0; i -= 1) {
+    const rolled = nextRng(state);
+    state = rolled.rngState;
+    const j = Math.floor(rolled.roll * (i + 1));
+    const swap = next[i];
+    next[i] = next[j];
+    next[j] = swap;
+  }
+  return { cards: next, rngState: state };
+}
