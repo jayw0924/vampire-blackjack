@@ -1,4 +1,5 @@
 import { freshShoe, handValue, isBlackjack, shuffle } from './cards.js';
+import { lineFor } from './lines.js';
 import { RULES, canSplitCards, outcomeFor, stakeReturned } from './rules.js';
 
 function baseState(fields) {
@@ -150,16 +151,52 @@ function settle(game) {
   };
 }
 
+function clampBet(blood, pending) {
+  let bet = Math.min(pending, RULES.maxBet, blood);
+  if (bet % 2 !== 0) bet -= 1;
+  return bet;
+}
+
 export function nextHand(game) {
   assertAction(game, 'next_hand');
   return {
     ...game,
     phase: 'betting',
+    pendingBet: clampBet(game.blood, game.pendingBet),
     playerHands: [],
     dealerCards: [],
     activeHand: 0,
     lastResult: null,
-    messageKey: 'betting',
+    messageKey: game.blood <= RULES.lowBlood ? 'low_blood' : 'betting',
+  };
+}
+
+export function newEvening(game) {
+  assertAction(game, 'new_evening');
+  return createGame({ seed: (game.seed + 1) >>> 0 });
+}
+
+export function publicView(game) {
+  const hideHole = game.phase === 'player';
+  const dealerCards = hideHole
+    ? [{ rank: game.dealerCards[0].rank, suit: game.dealerCards[0].suit }, { hidden: true }]
+    : game.dealerCards.map((c) => ({ rank: c.rank, suit: c.suit }));
+  return {
+    blood: game.blood,
+    phase: game.phase,
+    pendingBet: game.pendingBet,
+    playerHands: game.playerHands.map((hand) => ({
+      ...hand,
+      cards: hand.cards.map((c) => ({ rank: c.rank, suit: c.suit })),
+    })),
+    activeHand: game.activeHand,
+    dealerCards,
+    lastResult: game.lastResult,
+    evening: game.evening,
+    messageKey: game.messageKey,
+    message: lineFor(game.messageKey),
+    actions: legalActions(game),
+    lowBlood: game.blood <= RULES.lowBlood,
   };
 }
 

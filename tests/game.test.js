@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { betDown, betUp, createGame, deal, doubleDown, hit, nextHand, split, stand, withdraw } from '../src/game.js';
+import { betDown, betUp, createGame, deal, doubleDown, hit, newEvening, nextHand, publicView, split, stand, withdraw } from '../src/game.js';
 import { cards } from './helpers.js';
 
 test('a new evening starts at 20 blood with a stake of 2', () => {
@@ -214,4 +214,47 @@ test('a short live shoe is reshuffled and an injected shoe is not', () => {
   const scripted = deal(createGame({ shoe: cards('AS', '9H', 'KH', '5C', '2D') }));
   assert.equal(scripted.shoe.length, 1);
   assert.deepEqual(scripted.playerHands[0].cards, cards('AS', 'KH'));
+});
+
+test('the public view hides the hole card and omits the shoe', () => {
+  const dealt = deal(createGame({ shoe: cards('10S', '5H', '6D', '3C', '9H') }));
+  assert.equal(dealt.phase, 'player');
+  const view = publicView(dealt);
+  assert.deepEqual(Object.keys(view).sort(), [
+    'actions', 'activeHand', 'blood', 'dealerCards', 'evening', 'lastResult',
+    'lowBlood', 'message', 'messageKey', 'pendingBet', 'phase', 'playerHands',
+  ]);
+  assert.equal(view.dealerCards[1].hidden, true);
+  assert.equal('rank' in view.dealerCards[1], false);
+  assert.equal(JSON.stringify(view).includes('"rank":"3"'), false);
+  assert.equal(view.message, 'The hand is yours.');
+  const shown = publicView(stand(dealt));
+  assert.equal(shown.dealerCards[1].hidden, undefined);
+  assert.equal(shown.dealerCards[1].rank, '3');
+});
+
+test('next hand clamps an unaffordable stake and warns when blood is low', () => {
+  const settled = {
+    ...createGame({ seed: 1 }),
+    phase: 'settled',
+    blood: 5,
+    pendingBet: 10,
+    evening: null,
+  };
+  const next = nextHand(settled);
+  assert.equal(next.pendingBet, 4);
+  assert.equal(next.phase, 'betting');
+  assert.equal(next.messageKey, 'low_blood');
+  assert.equal(next.playerHands.length, 0);
+  assert.equal(next.lastResult, null);
+});
+
+test('another evening starts over at 20 and does not reuse the seed', () => {
+  const left = withdraw(createGame({ seed: 7 }));
+  const again = newEvening(left);
+  assert.equal(again.blood, 20);
+  assert.equal(again.phase, 'betting');
+  assert.equal(again.seed, 8);
+  assert.equal(again.evening, null);
+  assert.throws(() => newEvening(createGame({ seed: 7 })), /illegal action/);
 });
