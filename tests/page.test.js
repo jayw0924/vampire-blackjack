@@ -19,3 +19,14 @@ test('index.html has the parlor controls and no remote assets', () => {
   assert.equal(html.includes('https://'), false);
   assert.equal(/insurance/i.test(html), false);
 });
+
+test('stylesheet keeps the locked palette and no external urls', () => {
+  const css = fs.readFileSync('src/style.css', 'utf8');
+  assert.match(css, /#14080c/);
+  assert.match(css, /#9b2331/);
+  assert.match(css, /#c4a574/);
+  assert.match(css, /#f3e6d0/);
+  assert.match(css, /#8e2f3a/);
+  assert.equal(css.includes('url('), false);
+  assert.equal(/googleapis|comic sans|#7c3aed|purple/i.test(css), false);
+});

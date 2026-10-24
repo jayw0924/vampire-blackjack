@@ -1,0 +1,97 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #14080c;
+  color: #f3e6d0;
+  font-family: Georgia, "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+}
+
+#parlor {
+  max-width: 720px;
+  padding: 28px 24px 48px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #a89080;
+  letter-spacing: 0.04em;
+  font-size: 0.85rem;
+}
+
+h1 {
+  margin: 4px 0 16px;
+  color: #c4a574;
+  font-size: 2rem;
+  font-weight: normal;
+}
+
+h2 {
+  margin: 0 0 8px;
+  color: #a89080;
+  font-size: 0.95rem;
+  font-weight: normal;
+}
+
+#message {
+  min-height: 3.2em;
+  font-size: 1.15rem;
+  line-height: 1.45;
+}
+
+section {
+  background: #1c0c10;
+  border: 1px solid #3a2428;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 12px 0;
+}
+
+.cards, .hand { display: flex; gap: 8px; align-items: flex-start; }
+
+.hand { flex-direction: column; margin-right: 16px; }
+
+.hand.active { outline: 1px solid #c4a574; outline-offset: 6px; }
+
+.card {
+  width: 72px;
+  height: 104px;
+  border-radius: 6px;
+  background: #f3e6d0;
+  color: #1a1014;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 8px;
+  font-size: 20px;
+}
+
+.card.red { color: #8e2f3a; }
+
+.card.back {
+  background: #2a1218;
+  color: transparent;
+  border: 1px solid #c4a574;
+}
+
+#blood { color: #9b2331; font-size: 1.2rem; }
+
+#parlor.low #blood { color: #c45a4a; }
+
+#ledger, #pending-bet, #dealer-value { color: #a89080; }
+
+button {
+  background: transparent;
+  color: #f3e6d0;
+  border: 1px solid #a89080;
+  border-radius: 4px;
+  padding: 8px 14px;
+  margin: 4px 6px 4px 0;
+  font: inherit;
+}
+
+button:hover { border-color: #c4a574; }
+
+button:disabled { opacity: 0.35; }
+
+[hidden] { display: none; }
