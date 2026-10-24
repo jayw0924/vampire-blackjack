@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { betDown, betUp, createGame, withdraw } from '../src/game.js';
+import { betDown, betUp, createGame, deal, withdraw } from '../src/game.js';
+import { cards } from './helpers.js';
 
 test('a new evening starts at 20 blood with a stake of 2', () => {
   const game = createGame({ seed: 1 });
@@ -36,4 +37,43 @@ test('leaving the table ends the evening without taking blood', () => {
   assert.equal(left.blood, 20);
   assert.equal(left.messageKey, 'withdrew');
   assert.throws(() => withdraw(left), /illegal action/);
+});
+
+test('an injected shoe is dealt player, dealer, player, dealer', () => {
+  const game = createGame({ shoe: cards('AS', '9H', 'KH', '5C') });
+  const before = structuredClone(game);
+  const dealt = deal(game);
+  assert.deepEqual(game, before);
+  assert.deepEqual(dealt.playerHands[0].cards, cards('AS', 'KH'));
+  assert.deepEqual(dealt.dealerCards, cards('9H', '5C'));
+  assert.equal(dealt.shoe.length, 0);
+});
+
+test('a player natural pays 3 to 2 and the dealer does not draw', () => {
+  const dealt = deal(createGame({ shoe: cards('AS', '9H', 'KH', '5C', '2D') }));
+  assert.equal(dealt.phase, 'settled');
+  assert.equal(dealt.blood, 23);
+  assert.equal(dealt.lastResult.net, 3);
+  assert.equal(dealt.lastResult.hands[0].outcome, 'blackjack');
+  assert.equal(dealt.messageKey, 'player_blackjack');
+  assert.equal(dealt.dealerCards.length, 2);
+  assert.deepEqual(dealt.shoe[0], { rank: '2', suit: 'D' });
+  assert.throws(() => deal(dealt), /illegal action/);
+});
+
+test('a dealer natural takes the stake before the player acts', () => {
+  const dealt = deal(createGame({ shoe: cards('9S', 'AS', '7H', 'KH') }));
+  assert.equal(dealt.phase, 'settled');
+  assert.equal(dealt.blood, 18);
+  assert.equal(dealt.lastResult.net, -2);
+  assert.equal(dealt.messageKey, 'dealer_blackjack');
+  assert.equal(dealt.playerHands[0].cards.length, 2);
+});
+
+test('both naturals push', () => {
+  const dealt = deal(createGame({ shoe: cards('AS', 'AH', 'KH', 'KD') }));
+  assert.equal(dealt.blood, 20);
+  assert.equal(dealt.lastResult.net, 0);
+  assert.equal(dealt.lastResult.hands[0].outcome, 'push');
+  assert.equal(dealt.messageKey, 'push');
 });
