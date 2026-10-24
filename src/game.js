@@ -127,14 +127,39 @@ function settle(game) {
     return { outcome, bet: hand.bet, net: outcomeNet(outcome, hand.bet) };
   });
   const net = results.reduce((sum, hand) => sum + hand.net, 0);
+  let phase = 'settled';
+  let evening = null;
+  let messageKey = chooseMessage(game.playerHands, results, game.dealerCards, net);
+  if (blood >= RULES.satedAt) {
+    phase = 'over';
+    evening = 'sated';
+    messageKey = 'sated';
+  } else if (blood < RULES.minBet) {
+    phase = 'over';
+    evening = 'drained';
+    messageKey = 'drained';
+  }
   return {
     ...game,
     blood,
-    phase: 'settled',
-    evening: null,
-    messageKey: chooseMessage(game.playerHands, results, game.dealerCards, net),
+    phase,
+    evening,
+    messageKey,
     lastResult: { hands: results, net },
     activeHand: 0,
+  };
+}
+
+export function nextHand(game) {
+  assertAction(game, 'next_hand');
+  return {
+    ...game,
+    phase: 'betting',
+    playerHands: [],
+    dealerCards: [],
+    activeHand: 0,
+    lastResult: null,
+    messageKey: 'betting',
   };
 }
 

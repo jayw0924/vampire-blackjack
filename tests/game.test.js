@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { betDown, betUp, createGame, deal, doubleDown, hit, split, stand, withdraw } from '../src/game.js';
+import { betDown, betUp, createGame, deal, doubleDown, hit, nextHand, split, stand, withdraw } from '../src/game.js';
 import { cards } from './helpers.js';
 
 test('a new evening starts at 20 blood with a stake of 2', () => {
@@ -165,4 +165,39 @@ test('split aces take one card each and are not naturals', () => {
     activeHand: 0,
     playerHands: game.playerHands.map((hand) => ({ ...hand, stood: false })),
   }), /illegal action/);
+});
+
+function repeatShoe(ids, times) {
+  const all = [];
+  for (let i = 0; i < times; i += 1) all.push(...ids);
+  return cards(...all);
+}
+
+test('ten losses drain the evening', () => {
+  let game = createGame({ shoe: repeatShoe(['10S', 'KH', '6H', '7D'], 10) });
+  for (let i = 0; i < 9; i += 1) {
+    game = stand(deal(game));
+    assert.equal(game.phase, 'settled');
+    game = nextHand(game);
+  }
+  game = stand(deal(game));
+  assert.equal(game.blood, 0);
+  assert.equal(game.phase, 'over');
+  assert.equal(game.evening, 'drained');
+  assert.equal(game.messageKey, 'drained');
+  assert.throws(() => nextHand(game), /illegal action/);
+});
+
+test('ten wins end the evening sated at 40', () => {
+  let game = createGame({ shoe: repeatShoe(['10S', '10H', '9D', '7C'], 10) });
+  for (let i = 0; i < 9; i += 1) {
+    game = stand(deal(game));
+    game = nextHand(game);
+  }
+  game = stand(deal(game));
+  assert.equal(game.blood, 40);
+  assert.equal(game.phase, 'over');
+  assert.equal(game.evening, 'sated');
+  assert.equal(game.messageKey, 'sated');
+  assert.equal(game.lastResult.net, 2);
 });
