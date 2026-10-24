@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { betDown, betUp, createGame, deal, hit, stand, withdraw } from '../src/game.js';
+import { betDown, betUp, createGame, deal, doubleDown, hit, split, stand, withdraw } from '../src/game.js';
 import { cards } from './helpers.js';
 
 test('a new evening starts at 20 blood with a stake of 2', () => {
@@ -105,4 +105,64 @@ test('the dealer hits 16 and stands on soft 17', () => {
   assert.deepEqual(soft.shoe[0], { rank: 'K', suit: 'H' });
   assert.equal(soft.blood, 22);
   assert.equal(soft.messageKey, 'player_win');
+});
+
+test('double down doubles the stake, draws one card, and stands', () => {
+  let game = deal(createGame({ shoe: cards('5S', '6H', '6D', '10C', '10H', 'QS') }));
+  assert.equal(game.blood, 18);
+  game = doubleDown(game);
+  assert.equal(game.playerHands[0].bet, 4);
+  assert.equal(game.playerHands[0].cards.length, 3);
+  assert.equal(game.playerHands[0].stood, true);
+  assert.equal(game.blood, 24);
+  assert.equal(game.lastResult.net, 4);
+  assert.equal(game.messageKey, 'dealer_bust');
+  const unaffordable = deal(createGame({ shoe: cards('5S', '6H', '6D', '10C', '10H') }));
+  const broke = { ...unaffordable, blood: 1 };
+  assert.throws(() => doubleDown(broke), /illegal action/);
+});
+
+test('split plays the first hand before the second', () => {
+  let game = deal(createGame({ shoe: cards('8S', '6C', '8H', '9D', '6H', '10S', 'KS', '7C') }));
+  assert.equal(game.blood, 18);
+  game = split(game);
+  assert.equal(game.blood, 16);
+  assert.equal(game.phase, 'player');
+  assert.equal(game.activeHand, 0);
+  assert.equal(game.playerHands[0].cards.length, 2);
+  assert.equal(game.playerHands[1].cards.length, 2);
+  game = hit(game);
+  assert.equal(game.playerHands[0].busted, true);
+  assert.equal(game.activeHand, 1);
+  assert.equal(game.phase, 'player');
+  game = stand(game);
+  assert.equal(game.phase, 'settled');
+  assert.equal(game.blood, 20);
+  assert.equal(game.lastResult.net, 0);
+  assert.deepEqual(
+    game.lastResult.hands.map((hand) => hand.outcome),
+    ['loss', 'win'],
+  );
+  assert.equal(game.messageKey, 'push');
+});
+
+test('split aces take one card each and are not naturals', () => {
+  const game = split(deal(createGame({ shoe: cards('AS', 'KH', 'AH', '9D', 'KS', '8C') })));
+  assert.notEqual(game.phase, 'player');
+  assert.equal(game.playerHands[0].fromSplit, true);
+  assert.equal(game.playerHands[0].splitAces, true);
+  assert.equal(game.playerHands[0].cards.length, 2);
+  assert.equal(game.playerHands[1].cards.length, 2);
+  assert.equal(game.lastResult.hands[0].outcome, 'win');
+  assert.equal(game.lastResult.hands[1].outcome, 'push');
+  assert.equal(game.blood, 22);
+  assert.equal(game.lastResult.net, 2);
+  assert.equal(game.dealerCards.length, 2);
+  assert.throws(() => hit(game), /illegal action/);
+  assert.throws(() => doubleDown({
+    ...game,
+    phase: 'player',
+    activeHand: 0,
+    playerHands: game.playerHands.map((hand) => ({ ...hand, stood: false })),
+  }), /illegal action/);
 });

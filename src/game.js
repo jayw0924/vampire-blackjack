@@ -205,3 +205,45 @@ export function stand(game) {
   hands[game.activeHand].stood = true;
   return advance({ ...game, playerHands: hands });
 }
+
+export function doubleDown(game) {
+  assertAction(game, 'double');
+  const hands = game.playerHands.map((hand) => ({ ...hand, cards: hand.cards.slice() }));
+  const hand = hands[game.activeHand];
+  const drawn = drawOne(game.shoe);
+  const added = hand.bet;
+  hand.cards = hand.cards.concat(drawn.drawn);
+  hand.bet = added * 2;
+  hand.busted = handValue(hand.cards) > 21;
+  hand.stood = true;
+  return advance({
+    ...game,
+    shoe: drawn.shoe,
+    blood: game.blood - added,
+    playerHands: hands,
+  });
+}
+
+export function split(game) {
+  assertAction(game, 'split');
+  const original = game.playerHands[0];
+  const aces = original.cards[0].rank === 'A';
+  let shoe = game.shoe;
+  const n1 = drawOne(shoe); shoe = n1.shoe;
+  const n2 = drawOne(shoe); shoe = n2.shoe;
+  const extra = { fromSplit: true, splitAces: aces, stood: aces };
+  const hands = [
+    makeHand([original.cards[0], n1.drawn], original.bet, extra),
+    makeHand([original.cards[1], n2.drawn], original.bet, extra),
+  ];
+  const next = {
+    ...game,
+    shoe,
+    blood: game.blood - original.bet,
+    playerHands: hands,
+    activeHand: 0,
+  };
+  if (hands[0].stood && hands[1].stood) return resolveDealer(next);
+  if (hands[0].stood) return { ...next, activeHand: 1, phase: 'player', messageKey: 'player_turn' };
+  return { ...next, phase: 'player', messageKey: 'player_turn' };
+}
