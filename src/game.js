@@ -163,9 +163,16 @@ export function nextHand(game) {
   };
 }
 
+function withReadyShoe(game) {
+  if (game.shoe.length >= RULES.reshuffleBelow || game.shoeInjected) return game;
+  const shuffled = shuffle(freshShoe(), game.rngState);
+  return { ...game, shoe: shuffled.cards, rngState: shuffled.rngState };
+}
+
 export function deal(game) {
   assertAction(game, 'deal');
-  let shoe = game.shoe;
+  const ready = withReadyShoe(game);
+  let shoe = ready.shoe;
   const p1 = drawOne(shoe); shoe = p1.shoe;
   const d1 = drawOne(shoe); shoe = d1.shoe;
   const p2 = drawOne(shoe); shoe = p2.shoe;
@@ -173,10 +180,10 @@ export function deal(game) {
   const playerCards = [p1.drawn, p2.drawn];
   const dealerCards = [d1.drawn, d2.drawn];
   const next = {
-    ...game,
+    ...ready,
     shoe,
-    blood: game.blood - game.pendingBet,
-    playerHands: [makeHand(playerCards, game.pendingBet)],
+    blood: ready.blood - ready.pendingBet,
+    playerHands: [makeHand(playerCards, ready.pendingBet)],
     dealerCards,
     activeHand: 0,
     lastResult: null,

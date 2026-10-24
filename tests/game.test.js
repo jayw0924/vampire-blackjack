@@ -201,3 +201,17 @@ test('ten wins end the evening sated at 40', () => {
   assert.equal(game.messageKey, 'sated');
   assert.equal(game.lastResult.net, 2);
 });
+
+test('a short live shoe is reshuffled and an injected shoe is not', () => {
+  const live = createGame({ seed: 1 });
+  const short = { ...live, shoe: live.shoe.slice(0, 10), shoeInjected: false };
+  const dealt = deal(short);
+  assert.equal(short.shoe.length, 10);
+  assert.equal(dealt.shoe.length, 48);
+  assert.equal(dealt.playerHands[0].cards.length, 2);
+  assert.equal(dealt.dealerCards.length, 2);
+
+  const scripted = deal(createGame({ shoe: cards('AS', '9H', 'KH', '5C', '2D') }));
+  assert.equal(scripted.shoe.length, 1);
+  assert.deepEqual(scripted.playerHands[0].cards, cards('AS', 'KH'));
+});
