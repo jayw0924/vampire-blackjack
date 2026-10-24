@@ -30,3 +30,13 @@ test('stylesheet keeps the locked palette and no external urls', () => {
   assert.equal(css.includes('url('), false);
   assert.equal(/googleapis|comic sans|#7c3aed|purple/i.test(css), false);
 });
+
+test('ui.js never reads the raw hole card', () => {
+  const src = fs.readFileSync('src/ui.js', 'utf8');
+  assert.equal(src.includes('publicView'), true);
+  assert.equal(src.includes('game.dealerCards'), false);
+  assert.equal(src.includes('innerHTML'), false);
+  assert.equal(src.includes('insertAdjacentHTML'), false);
+  assert.equal(/insurance/i.test(src), false);
+  assert.equal(src.includes('Math.random'), false);
+});
