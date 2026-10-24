@@ -29,6 +29,14 @@ export function handValue(cards) {
   return total;
 }
 
+export function isTenValue(c) {
+  return c.rank === '10' || c.rank === 'J' || c.rank === 'Q' || c.rank === 'K';
+}
+
+export function isBlackjack(cards) {
+  return cards.length === 2 && handValue(cards) === 21;
+}
+
 export function freshShoe() {
   const shoe = [];
   for (const suit of SUITS) {
