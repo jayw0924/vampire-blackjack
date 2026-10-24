@@ -41,3 +41,15 @@ test('one drop is singular and a settled hand shows the ledger', () => {
   assert.equal(lone.showNextHand, false);
   assert.equal(lone.showBetting, false);
 });
+
+test('shown cards have a suit and the hole card does not', () => {
+  const view = publicView(deal(createGame({ shoe: cards('10S', '5H', '6D', '3C') })));
+  const shown = present(view);
+  assert.equal(shown.dealerCards[0].suitGlyph, '♥');
+  assert.equal(shown.dealerCards[0].label, '5♥');
+  assert.equal(shown.dealerCards[1].suitGlyph, undefined);
+  assert.equal(shown.stakeDrops, 1);
+  assert.equal(shown.vialFilled, 5);
+  assert.equal(shown.candleCount, 3);
+  assert.equal(JSON.stringify(shown).includes('3♣'), false);
+});

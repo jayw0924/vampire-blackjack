@@ -15,7 +15,7 @@ body[data-room="dismissal"] { background: #120c0a; }
 body[data-room="departure"] { background: #100e0c; }
 
 #parlor {
-  max-width: 720px;
+  max-width: 860px;
   padding: 28px 24px 48px;
 }
 
@@ -39,11 +39,15 @@ h1 {
 body[data-room="flushed"] h1 { color: #d4b896; }
 body[data-room="cellar"] h1 { color: #8e2f3a; }
 
-h2 {
-  margin: 0 0 8px;
-  color: #a89080;
-  font-size: 0.95rem;
-  font-weight: normal;
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 
 #room, #remark, #story {
@@ -53,58 +57,205 @@ h2 {
 }
 
 #story { font-style: italic; }
-
 #remark:empty, #story:empty { display: none; }
 
 #message {
   min-height: 1.6em;
+  margin: 8px 0 4px;
+  text-align: center;
   font-size: 1.15rem;
   line-height: 1.45;
 }
 
-section {
-  background: #1c0c10;
+#remark { text-align: center; }
+
+#manor {
+  position: relative;
+  margin-top: 12px;
+  padding: 16px 56px 22px;
   border: 1px solid #3a2428;
-  border-radius: 12px;
-  padding: 16px;
-  margin: 12px 0;
+  border-radius: 16px 16px 6px 6px;
+  background:
+    linear-gradient(180deg, rgba(243, 230, 208, 0.04), transparent 28%),
+    repeating-linear-gradient(180deg, #1a1014 0 16px, #120c10 16px 18px);
 }
 
-body[data-room="hungry"] section { background: #160a0e; }
-body[data-room="close"] section { border-color: #5a3030; }
-body[data-room="cellar"] section { opacity: 0.4; }
+#candles {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  min-height: 42px;
+}
 
-.cards, .hand { display: flex; gap: 8px; align-items: flex-start; }
+.candle { width: 8px; height: 22px; background: #f3e6d0; border-radius: 1px; position: relative; }
+.candle::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: -8px;
+  width: 2px;
+  height: 8px;
+  background: #1a1014;
+}
+.candle.lit::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: -16px;
+  width: 6px;
+  height: 10px;
+  border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+  background: #c4a574;
+  box-shadow: 0 0 10px #8e2f3a;
+}
+body[data-room="cellar"] .candle.lit::after { display: none; }
 
-.hand { flex-direction: column; margin-right: 16px; }
+#lord { margin: 8px auto 0; text-align: center; }
+#lord figcaption { color: #c4a574; letter-spacing: 0.04em; }
 
-.hand.active { outline: 1px solid #c4a574; outline-offset: 6px; }
+#lord-frame {
+  width: 116px;
+  height: 148px;
+  margin: 0 auto 6px;
+  border: 1px solid #c4a574;
+  border-radius: 70px 70px 4px 4px;
+  background: #14080c;
+  position: relative;
+  overflow: hidden;
+}
+#lord-frame::before,
+#lord-frame::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #241418;
+}
+#lord-frame::before {
+  top: 26px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+}
+#lord-frame::after {
+  bottom: 0;
+  width: 78px;
+  height: 62px;
+  border-radius: 36px 36px 0 0;
+}
+
+#felt {
+  position: relative;
+  min-height: 360px;
+  margin: 14px auto 0;
+  padding: 28px 36px 22px;
+  border-radius: 180px;
+  border: 2px solid #8a7048;
+  background: radial-gradient(ellipse at center, #5c242c 0%, #3a151c 58%, #2a1016 100%);
+  box-shadow: inset 0 0 48px #14080c;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+body[data-room="close"] #felt { box-shadow: inset 0 0 70px #0a0406; }
+body[data-room="cellar"] #felt { opacity: 0.45; }
+body[data-room="flushed"] #felt { border-color: #c4a574; }
+
+#dealer-rail, #player-rail { text-align: center; }
+#dealer-value { min-height: 1.2em; margin: 4px 0 0; color: #a89080; }
+
+.cards, .hand { display: flex; justify-content: center; align-items: flex-start; }
+.hand { flex-direction: column; margin: 0 10px; }
+.hand.active .cards { outline: 1px solid #c4a574; outline-offset: 8px; }
 
 .card {
-  width: 72px;
-  height: 104px;
+  position: relative;
+  width: 78px;
+  height: 112px;
+  margin: 0 -8px;
   border-radius: 6px;
   background: #f3e6d0;
   color: #1a1014;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding: 8px;
-  font-size: 20px;
+  border: 1px solid #1a1014;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
 }
-
 .card.red { color: #8e2f3a; }
-
+.corner {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 16px;
+  line-height: 1;
+}
+.corner.minor {
+  top: auto;
+  left: auto;
+  right: 6px;
+  bottom: 6px;
+  transform: rotate(180deg);
+}
+.pip {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
 .card.back {
   background: #2a1218;
   color: transparent;
   border: 1px solid #c4a574;
 }
+.back-mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  border: 1px solid #c4a574;
+}
+.back-mark::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid #8e2f3a;
+}
 
-body[data-room="close"] .card.back { border-color: #8e2f3a; }
+#stake {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 6px;
+  min-height: 16px;
+}
+.drop {
+  width: 10px;
+  height: 14px;
+  background: #9b2331;
+  border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+}
+
+#vial {
+  position: absolute;
+  right: 16px;
+  top: 92px;
+  width: 16px;
+  height: 132px;
+  padding: 3px;
+  border: 1px solid #8e2f3a;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+}
+.tick { flex: 1; background: #2a1218; border-radius: 1px; }
+.tick.filled { background: #9b2331; }
 
 #blood { color: #9b2331; font-size: 1.2rem; }
-
 #parlor.low #blood,
 body[data-room="close"] #blood { color: #c45a4a; }
 
@@ -112,11 +263,17 @@ body[data-room="close"] #blood { color: #c45a4a; }
   body[data-room="close"] #blood {
     animation: pulse 1.6s ease-in-out infinite;
   }
+  .candle.lit::after {
+    animation: flame 1.4s ease-in-out infinite;
+  }
 }
-
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.55; }
+}
+@keyframes flame {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.8); }
 }
 
 #ledger, #pending-bet, #dealer-value { color: #a89080; }
@@ -130,15 +287,14 @@ button {
   margin: 4px 6px 4px 0;
   font: inherit;
 }
-
-#mute {
-  margin-left: auto;
-  font-size: 0.85rem;
-  color: #a89080;
-}
-
+#mute { margin-left: auto; font-size: 0.85rem; color: #a89080; }
 button:hover { border-color: #c4a574; }
-
 button:disabled { opacity: 0.35; }
-
 [hidden] { display: none; }
+
+@media (max-width: 640px) {
+  #manor { padding: 12px 12px 18px; }
+  #vial { display: none; }
+  #felt { border-radius: 28px; padding: 16px 12px; min-height: 300px; }
+  .card { width: 64px; height: 92px; margin: 0 -12px; }
+}

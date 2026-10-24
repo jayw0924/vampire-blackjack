@@ -10,9 +10,26 @@ export function displayCard(c) {
   return {
     hidden: false,
     label: `${c.rank}${SUIT_GLYPH[c.suit]}`,
+    suitGlyph: SUIT_GLYPH[c.suit],
     red: c.suit === 'H' || c.suit === 'D',
     aria: `${rankName} of ${SUIT_NAME[c.suit]}`,
   };
+}
+
+export function candleCount(room) {
+  if (room === 'cellar') return 0;
+  if (room === 'close' || room === 'dismissal') return 1;
+  if (room === 'hungry' || room === 'departure') return 2;
+  return 3;
+}
+
+export function stakeDrops(bet) {
+  return Math.max(0, Math.floor(Number(bet) / 2) || 0);
+}
+
+export function vialFilled(blood) {
+  if (!blood || blood <= 0) return 0;
+  return Math.min(10, Math.ceil(blood / 4));
 }
 
 function dealerValueLabel(view) {
@@ -60,5 +77,8 @@ export function present(view) {
     cue: view.cue,
     remark: view.remark || '',
     story: view.story || '',
+    stakeDrops: stakeDrops(view.pendingBet),
+    vialFilled: vialFilled(view.blood),
+    candleCount: candleCount(view.room),
   };
 }

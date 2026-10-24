@@ -15,17 +15,28 @@
     </header>
     <p id="room"></p>
     <p id="story"></p>
-    <p id="message" role="status"></p>
-    <p id="remark"></p>
-    <section aria-label="Lord Vesper">
-      <h2>Lord Vesper</h2>
-      <div id="dealer-cards" class="cards"></div>
-      <p id="dealer-value"></p>
-    </section>
-    <section aria-label="You">
-      <h2>You</h2>
-      <div id="player-hands"></div>
-    </section>
+    <div id="manor">
+      <div id="candles" aria-hidden="true"></div>
+      <figure id="lord">
+        <div id="lord-frame" data-portrait="empty" aria-hidden="true"></div>
+        <figcaption>Lord Vesper</figcaption>
+      </figure>
+      <p id="message" role="status"></p>
+      <p id="remark"></p>
+      <div id="felt">
+        <section id="dealer-rail" aria-label="Lord Vesper">
+          <h2 class="visually-hidden">Lord Vesper</h2>
+          <div id="dealer-cards" class="cards"></div>
+          <p id="dealer-value"></p>
+        </section>
+        <div id="stake" aria-hidden="true"></div>
+        <section id="player-rail" aria-label="You">
+          <h2 class="visually-hidden">You</h2>
+          <div id="player-hands"></div>
+        </section>
+      </div>
+      <div id="vial" aria-label="Blood remaining"></div>
+    </div>
     <p id="ledger"></p>
     <p id="blood"></p>
     <p id="pending-bet"></p>

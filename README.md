@@ -8,6 +8,8 @@ At 40 drops, the Lord sends you out. Below 2, the evening ends in the cellar. Yo
 
 The room changes with your blood. The Lord remarks on the hand he can see, never the hole card. A short story plays once, at the door and again when he first hears your heart. The room is silent until you ask it to speak.
 
+The table is a felt oval in a stone parlor. Candles and the vial follow the evening. The arch above the felt is Lord Vesper's place. It is empty until a local portrait is added at `assets/lord.webp`. Do not hotlink an image.
+
 ## Run
 
 ```bash

@@ -24,13 +24,42 @@ function must(id) {
   return el;
 }
 
+function fillCount(el, count, total, className) {
+  el.replaceChildren();
+  for (let i = 0; i < total; i += 1) {
+    const mark = document.createElement('span');
+    mark.className = i < count ? `${className} on` : className;
+    if (className === 'candle' && i < count) mark.classList.add('lit');
+    if (className === 'tick' && i < count) mark.classList.add('filled');
+    el.append(mark);
+  }
+}
+
 function mountCards(el, cards) {
   el.replaceChildren();
   for (const card of cards) {
     const div = document.createElement('div');
     div.className = card.hidden ? 'card back' : `card ${card.red ? 'red' : 'black'}`;
     div.setAttribute('aria-label', card.aria);
-    div.textContent = card.label;
+    if (card.hidden) {
+      const mark = document.createElement('span');
+      mark.className = 'back-mark';
+      mark.setAttribute('aria-hidden', 'true');
+      div.append(mark);
+    } else {
+      const top = document.createElement('span');
+      top.className = 'corner';
+      top.textContent = card.label;
+      const pip = document.createElement('span');
+      pip.className = 'pip';
+      pip.setAttribute('aria-hidden', 'true');
+      pip.textContent = card.suitGlyph;
+      const bottom = document.createElement('span');
+      bottom.className = 'corner minor';
+      bottom.setAttribute('aria-hidden', 'true');
+      bottom.textContent = card.label;
+      div.append(top, pip, bottom);
+    }
     el.append(div);
   }
 }
@@ -48,6 +77,9 @@ function paint(game) {
   must('ledger').textContent = view.ledger;
   must('dealer-value').textContent = view.dealerValueLabel;
   mountCards(must('dealer-cards'), view.dealerCards);
+  fillCount(must('candles'), view.candleCount, 3, 'candle');
+  fillCount(must('stake'), view.stakeDrops, view.stakeDrops, 'drop');
+  fillCount(must('vial'), view.vialFilled, 10, 'tick');
   setCue(view.cue);
 
   const hands = must('player-hands');
