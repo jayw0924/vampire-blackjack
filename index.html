@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lord Vesper's Table</title>
+  <link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+  <main id="parlor">
+    <header>
+      <p class="eyebrow">Castle Vesper · The Crimson Parlor</p>
+      <h1>Lord Vesper's Table</h1>
+    </header>
+    <p id="message" role="status"></p>
+    <section aria-label="Lord Vesper">
+      <h2>Lord Vesper</h2>
+      <div id="dealer-cards" class="cards"></div>
+      <p id="dealer-value"></p>
+    </section>
+    <section aria-label="You">
+      <h2>You</h2>
+      <div id="player-hands"></div>
+    </section>
+    <p id="ledger"></p>
+    <p id="blood"></p>
+    <p id="pending-bet"></p>
+    <div id="betting">
+      <button id="bet-down" type="button">Lower stake</button>
+      <button id="bet-up" type="button">Raise stake</button>
+      <button id="deal" type="button">Deal</button>
+      <button id="withdraw" type="button">Leave the table</button>
+    </div>
+    <div id="actions">
+      <button id="hit" type="button">Hit</button>
+      <button id="stand" type="button">Stand</button>
+      <button id="double" type="button">Double</button>
+      <button id="split" type="button">Split</button>
+    </div>
+    <div id="between">
+      <button id="continue" type="button">Next hand</button>
+      <button id="new-evening" type="button">Another evening</button>
+    </div>
+  </main>
+  <script type="module" src="src/ui.js"></script>
+</body>
+</html>
