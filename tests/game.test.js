@@ -221,8 +221,9 @@ test('the public view hides the hole card and omits the shoe', () => {
   assert.equal(dealt.phase, 'player');
   const view = publicView(dealt);
   assert.deepEqual(Object.keys(view).sort(), [
-    'actions', 'activeHand', 'blood', 'dealerCards', 'evening', 'lastResult',
+    'actions', 'activeHand', 'blood', 'cue', 'dealerCards', 'evening', 'lastResult',
     'lowBlood', 'message', 'messageKey', 'pendingBet', 'phase', 'playerHands',
+    'remark', 'room', 'roomLine', 'story',
   ]);
   assert.equal(view.dealerCards[1].hidden, true);
   assert.equal('rank' in view.dealerCards[1], false);
@@ -257,4 +258,50 @@ test('another evening starts over at 20 and does not reuse the seed', () => {
   assert.equal(again.seed, 8);
   assert.equal(again.evening, null);
   assert.throws(() => newEvening(createGame({ seed: 7 })), /illegal action/);
+});
+
+test('the parlor reacts without changing the hand', () => {
+  const arrival = publicView(createGame({ seed: 3 }));
+  assert.equal(arrival.room, 'composed');
+  assert.equal(arrival.cue, 'idle');
+  assert.match(arrival.story, /coat/);
+  assert.equal(arrival.remark, '');
+
+  const stiff = publicView(deal(createGame({ shoe: cards('10S', '5H', '6D', '3C', '9H') })));
+  assert.equal(stiff.message, 'The hand is yours.');
+  assert.equal(stiff.remark, 'A poor hand. The greedy ones hit.');
+  assert.equal(stiff.cue, 'hand');
+  assert.equal(stiff.story, '');
+  assert.equal(JSON.stringify(stiff).includes('"rank":"3"'), false);
+
+  const high = publicView(deal(createGame({ shoe: cards('9S', 'AS', '7H', '5C') })));
+  assert.equal(high.remark, 'He shows a high card, and does not blink.');
+
+  const pat = publicView(deal(createGame({ shoe: cards('10S', '6H', '9D', '5C') })));
+  assert.equal(pat.remark, 'You could stand. The patient ones do.');
+
+  const low = nextHand({
+    ...createGame({ seed: 1 }),
+    phase: 'settled',
+    blood: 5,
+    pendingBet: 2,
+    evening: null,
+  });
+  const lowView = publicView(low);
+  assert.equal(lowView.room, 'close');
+  assert.equal(lowView.cue, 'pulse');
+  assert.match(lowView.story, /portraits/);
+  const second = publicView(nextHand({ ...low, phase: 'settled' }));
+  assert.equal(second.story, '');
+
+  const drained = publicView({
+    ...createGame({ seed: 1 }),
+    phase: 'over',
+    evening: 'drained',
+    blood: 0,
+    messageKey: 'drained',
+  });
+  assert.equal(drained.room, 'cellar');
+  assert.equal(drained.cue, 'cellar');
+  assert.match(drained.story, /downstairs/);
 });

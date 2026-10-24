@@ -55,5 +55,10 @@ export function present(view) {
       outcomeLabel: view.lastResult ? outcomeLabel(view.lastResult.hands[index]) : '',
     })),
     ledger: view.lastResult ? ledgerLabel(view.lastResult.net) : '',
+    room: view.room,
+    roomLine: view.roomLine || '',
+    cue: view.cue,
+    remark: view.remark || '',
+    story: view.story || '',
   };
 }

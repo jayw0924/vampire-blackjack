@@ -8,7 +8,7 @@ test('index.html has the parlor controls and no remote assets', () => {
     'parlor', 'message', 'dealer-cards', 'dealer-value', 'player-hands',
     'ledger', 'blood', 'pending-bet', 'bet-down', 'bet-up', 'deal', 'withdraw',
     'hit', 'stand', 'double', 'split', 'continue', 'new-evening', 'betting',
-    'actions', 'between',
+    'actions', 'between', 'room', 'remark', 'story', 'mute',
   ]) {
     assert.equal(html.includes(`id="${id}"`), true, `missing #${id}`);
   }

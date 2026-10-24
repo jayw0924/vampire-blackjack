@@ -3,6 +3,7 @@ import {
   nextHand, publicView, split, stand, withdraw,
 } from './game.js';
 import { present } from './render.js';
+import { setCue, toggleMute } from './score.js';
 
 const BUTTONS = [
   ['bet-down', 'bet_down', betDown],
@@ -36,13 +37,18 @@ function mountCards(el, cards) {
 
 function paint(game) {
   const view = present(publicView(game));
+  document.body.dataset.room = view.room || 'composed';
   must('parlor').classList.toggle('low', view.lowBlood);
+  must('room').textContent = view.roomLine;
+  must('story').textContent = view.story;
   must('message').textContent = view.message;
+  must('remark').textContent = view.remark;
   must('blood').textContent = view.bloodLabel;
   must('pending-bet').textContent = view.stakeLabel;
   must('ledger').textContent = view.ledger;
   must('dealer-value').textContent = view.dealerValueLabel;
   mountCards(must('dealer-cards'), view.dealerCards);
+  setCue(view.cue);
 
   const hands = must('player-hands');
   hands.replaceChildren();
@@ -83,6 +89,10 @@ function boot() {
       render();
     });
   }
+  must('mute').addEventListener('click', () => {
+    const muted = toggleMute();
+    must('mute').textContent = muted ? 'Let the room speak' : 'Silence the room';
+  });
   render();
 }
 

@@ -7,24 +7,37 @@ body {
   font-family: Georgia, "Iowan Old Style", Palatino, "Palatino Linotype", serif;
 }
 
+body[data-room="hungry"] { background: #10060a; }
+body[data-room="close"] { background: #0a0406; }
+body[data-room="cellar"] { background: #050203; }
+body[data-room="flushed"] { background: #1a0a0c; }
+body[data-room="dismissal"] { background: #120c0a; }
+body[data-room="departure"] { background: #100e0c; }
+
 #parlor {
   max-width: 720px;
   padding: 28px 24px 48px;
 }
 
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; }
+
 .eyebrow {
   margin: 0;
+  width: 100%;
   color: #a89080;
   letter-spacing: 0.04em;
   font-size: 0.85rem;
 }
 
 h1 {
-  margin: 4px 0 16px;
+  margin: 4px 0 8px;
   color: #c4a574;
   font-size: 2rem;
   font-weight: normal;
 }
+
+body[data-room="flushed"] h1 { color: #d4b896; }
+body[data-room="cellar"] h1 { color: #8e2f3a; }
 
 h2 {
   margin: 0 0 8px;
@@ -33,8 +46,18 @@ h2 {
   font-weight: normal;
 }
 
+#room, #remark, #story {
+  margin: 0 0 0.7em;
+  color: #a89080;
+  line-height: 1.45;
+}
+
+#story { font-style: italic; }
+
+#remark:empty, #story:empty { display: none; }
+
 #message {
-  min-height: 3.2em;
+  min-height: 1.6em;
   font-size: 1.15rem;
   line-height: 1.45;
 }
@@ -46,6 +69,10 @@ section {
   padding: 16px;
   margin: 12px 0;
 }
+
+body[data-room="hungry"] section { background: #160a0e; }
+body[data-room="close"] section { border-color: #5a3030; }
+body[data-room="cellar"] section { opacity: 0.4; }
 
 .cards, .hand { display: flex; gap: 8px; align-items: flex-start; }
 
@@ -74,9 +101,23 @@ section {
   border: 1px solid #c4a574;
 }
 
+body[data-room="close"] .card.back { border-color: #8e2f3a; }
+
 #blood { color: #9b2331; font-size: 1.2rem; }
 
-#parlor.low #blood { color: #c45a4a; }
+#parlor.low #blood,
+body[data-room="close"] #blood { color: #c45a4a; }
+
+@media (prefers-reduced-motion: no-preference) {
+  body[data-room="close"] #blood {
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
 
 #ledger, #pending-bet, #dealer-value { color: #a89080; }
 
@@ -88,6 +129,12 @@ button {
   padding: 8px 14px;
   margin: 4px 6px 4px 0;
   font: inherit;
+}
+
+#mute {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: #a89080;
 }
 
 button:hover { border-color: #c4a574; }

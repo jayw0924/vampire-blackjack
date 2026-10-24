@@ -1,4 +1,5 @@
 import { freshShoe, handValue, isBlackjack, shuffle } from './cards.js';
+import { cueFor, remarkFor, roomFor, roomLine, storyFor } from './atmosphere.js';
 import { lineFor } from './lines.js';
 import { RULES, canSplitCards, outcomeFor, stakeReturned } from './rules.js';
 
@@ -17,6 +18,8 @@ function baseState(fields) {
     lastResult: null,
     evening: null,
     messageKey: 'betting',
+    freshHeart: false,
+    beats: { arrived: false, heartTold: false },
   };
 }
 
@@ -159,6 +162,8 @@ function clampBet(blood, pending) {
 
 export function nextHand(game) {
   assertAction(game, 'next_hand');
+  const beats = { arrived: false, heartTold: false, ...(game.beats || {}) };
+  const low = game.blood <= RULES.lowBlood;
   return {
     ...game,
     phase: 'betting',
@@ -167,7 +172,9 @@ export function nextHand(game) {
     dealerCards: [],
     activeHand: 0,
     lastResult: null,
-    messageKey: game.blood <= RULES.lowBlood ? 'low_blood' : 'betting',
+    messageKey: low ? 'low_blood' : 'betting',
+    freshHeart: low && !beats.heartTold,
+    beats: { ...beats, arrived: true, heartTold: beats.heartTold || low },
   };
 }
 
@@ -181,6 +188,7 @@ export function publicView(game) {
   const dealerCards = hideHole
     ? [{ rank: game.dealerCards[0].rank, suit: game.dealerCards[0].suit }, { hidden: true }]
     : game.dealerCards.map((c) => ({ rank: c.rank, suit: c.suit }));
+  const room = roomFor(game.blood, game.evening);
   return {
     blood: game.blood,
     phase: game.phase,
@@ -197,6 +205,16 @@ export function publicView(game) {
     message: lineFor(game.messageKey),
     actions: legalActions(game),
     lowBlood: game.blood <= RULES.lowBlood,
+    room,
+    roomLine: roomLine(room),
+    cue: cueFor({
+      phase: game.phase,
+      evening: game.evening,
+      room,
+      messageKey: game.messageKey,
+    }),
+    remark: remarkFor(game),
+    story: storyFor(game),
   };
 }
 
@@ -209,7 +227,12 @@ function withReadyShoe(game) {
 export function deal(game) {
   assertAction(game, 'deal');
   const ready = withReadyShoe(game);
-  let shoe = ready.shoe;
+  const marked = {
+    ...ready,
+    freshHeart: false,
+    beats: { arrived: true, heartTold: Boolean(ready.beats?.heartTold) },
+  };
+  let shoe = marked.shoe;
   const p1 = drawOne(shoe); shoe = p1.shoe;
   const d1 = drawOne(shoe); shoe = d1.shoe;
   const p2 = drawOne(shoe); shoe = p2.shoe;
@@ -217,10 +240,10 @@ export function deal(game) {
   const playerCards = [p1.drawn, p2.drawn];
   const dealerCards = [d1.drawn, d2.drawn];
   const next = {
-    ...ready,
+    ...marked,
     shoe,
-    blood: ready.blood - ready.pendingBet,
-    playerHands: [makeHand(playerCards, ready.pendingBet)],
+    blood: marked.blood - marked.pendingBet,
+    playerHands: [makeHand(playerCards, marked.pendingBet)],
     dealerCards,
     activeHand: 0,
     lastResult: null,

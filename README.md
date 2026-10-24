@@ -6,6 +6,8 @@ You start with 20 drops. Bet 2, 4, 6, 8, or 10. Ordinary wins pay even money. A 
 
 At 40 drops, the Lord sends you out. Below 2, the evening ends in the cellar. You may leave on your own before the deal.
 
+The room changes with your blood. The Lord remarks on the hand he can see, never the hole card. A short story plays once, at the door and again when he first hears your heart. The room is silent until you ask it to speak.
+
 ## Run
 
 ```bash

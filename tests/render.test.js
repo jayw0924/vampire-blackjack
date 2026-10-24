@@ -14,6 +14,9 @@ test('blood label pluralizes and the dealer total stays hidden', () => {
   assert.equal(shown.dealerCards[1].label, '');
   assert.equal(shown.showActions, true);
   assert.equal(shown.showBetting, false);
+  assert.equal(shown.room, view.room);
+  assert.equal(shown.remark, view.remark);
+  assert.equal(JSON.stringify(shown).includes('"rank":"3"'), false);
   assert.equal(JSON.stringify(shown).includes('3♣') || JSON.stringify(shown).includes('"rank":"3"'), false);
 });
 
