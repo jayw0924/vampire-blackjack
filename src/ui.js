@@ -127,16 +127,14 @@ function boot() {
     must('mute').textContent = muted ? 'Let the room speak' : 'Silence the room';
   });
   const portrait = must('lord-portrait');
-  const portraits = ['assets/lord.webp', 'assets/lord.png', 'assets/lord.jpg', 'assets/lord.jpeg'];
-  const tryPortrait = (index) => {
-    if (index >= portraits.length) return;
-    portrait.addEventListener('load', () => {
-      must('lord-frame').dataset.portrait = 'set';
-    }, { once: true });
-    portrait.addEventListener('error', () => tryPortrait(index + 1), { once: true });
-    portrait.src = portraits[index];
+  const markPortrait = () => {
+    must('lord-frame').dataset.portrait = portrait.naturalWidth > 0 ? 'set' : 'empty';
   };
-  tryPortrait(0);
+  portrait.addEventListener('load', markPortrait);
+  portrait.addEventListener('error', () => {
+    must('lord-frame').dataset.portrait = 'empty';
+  });
+  if (portrait.complete) markPortrait();
   render();
 }
 

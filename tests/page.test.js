@@ -16,6 +16,7 @@ test('index.html has the parlor controls and no remote assets', () => {
   assert.match(html, /Lord Vesper's Table/);
   assert.match(html, /src\/ui\.js/);
   assert.match(html, /src\/style\.css/);
+  assert.match(html, /assets\/lord\.png/);
   assert.equal(html.includes('http://'), false);
   assert.equal(html.includes('https://'), false);
   assert.equal(/insurance/i.test(html), false);

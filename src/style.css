@@ -189,13 +189,23 @@ body[data-room="departure"] #manor::after {
   box-shadow: 0 0 10px #9b2331;
 }
 
-#lord { margin: 0 auto 4px; }
+#far { position: relative; padding-top: 132px; }
+#lord {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 0;
+  margin: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+#candles, #message, #remark, #dealer-rail { position: relative; z-index: 1; }
 #lord-frame {
-  width: 148px;
-  height: 188px;
+  width: 186px;
+  height: 248px;
   margin: 0 auto;
   border: 1px solid #8a7048;
-  border-radius: 86px 86px 4px 4px;
+  border-radius: 100px 100px 4px 4px;
   background: #0c0608;
   overflow: hidden;
 }
@@ -204,7 +214,7 @@ body[data-room="departure"] #manor::after {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 18%;
+  object-position: center 8%;
 }
 #lord-frame[data-portrait="set"] #lord-portrait { display: block; }
 
