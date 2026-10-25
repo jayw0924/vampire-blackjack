@@ -14,6 +14,7 @@
       <button id="mute" type="button">Let the room speak</button>
     </header>
     <div id="manor" data-candles="3">
+      <div id="door" aria-hidden="true"></div>
       <p id="room"></p>
       <p id="story"></p>
       <div id="felt">
@@ -57,11 +58,13 @@
           </div>
         </div>
       </div>
-      <div id="vial" aria-label="Blood remaining"></div>
+      <div id="cup">
+        <div id="vial" aria-label="Blood remaining"></div>
+        <p id="blood"></p>
+        <p id="pending-bet"></p>
+      </div>
     </div>
     <p id="ledger"></p>
-    <p id="blood"></p>
-    <p id="pending-bet"></p>
   </main>
   <script type="module" src="src/ui.js"></script>
 </body>

@@ -32,16 +32,18 @@ Chosen direction: **One pool of light.** The window is the room. The oval sits l
 
 Done:
 
-- Felt, cornered cards, stake drops, vial, candle pool, door slit.
-- Cellar no longer fades the cards.
-- Portrait is `assets/lord.png` (moved from `GothicAristocratinChiaroscuro.png`). Face should sit above the cards; the coat may be covered by the felt. Crop has not been checked in a browser.
+- Felt has a wood rail and a brass hairline. Cards have a bottom edge. Faces stay cream.
+- The night outside the parlor is `#050203`. The name is a gold plaque. Blood sits with the vial.
+- The door is an opening in the stone. It narrows when the parlor draws in, drops with a blood thread in the cellar, and moves left on departure.
+- One pool, driven by candle count, can go out. It is not a fade on the cards or the felt.
+- Portrait is `assets/lord.png` (1024×1536). `object-position` is still `center 8%`. Cover in the 186×248 arch should trim coat, not face. That has not been checked in a browser.
 
 Still open for the design session:
 
-- Confirm the portrait crop in a browser and shift `object-position` if the face is high or low.
-- Gold stays on the name and the card back. Brass marks the felt and focus rings.
+- Open the page and confirm the crop, the door, and whether the arch still reads as a box. Add stone blocks only if it does.
+- Gold stays on the name and the card back. Brass marks the felt, the focus rings, and the frame.
 - No full-bleed castle painting. No CDN. No hotlinked images.
-- Later, not now: a small frame shift when he drinks or pays. Not a sprite, not eye-glows.
+- Later, not now: a small frame shift when he drinks or pays. Not a sprite, not eye-glows. A pulse swell in `src/score.js` is not this session's file.
 
 ## Portrait brief
 

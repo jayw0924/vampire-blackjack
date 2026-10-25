@@ -22,6 +22,18 @@ test('index.html has the parlor controls and no remote assets', () => {
   assert.equal(/insurance/i.test(html), false);
 });
 
+test('the night sits outside the parlor and the cup sits in the room', () => {
+  const html = fs.readFileSync('index.html', 'utf8');
+  const css = fs.readFileSync('src/style.css', 'utf8');
+  const manor = html.slice(html.indexOf('id="manor"'), html.indexOf('id="ledger"'));
+  assert.equal(manor.includes('id="door"'), true, 'the door is not in the stone');
+  assert.equal(manor.includes('id="vial"'), true);
+  assert.equal(manor.includes('id="blood"'), true, 'the blood count is not with the vial');
+  assert.equal(manor.indexOf('id="vial"') < manor.indexOf('id="blood"'), true);
+  assert.match(css, /body\s*\{[^}]*background:\s*#050203/);
+  assert.match(css, /#14080c/);
+});
+
 test('stylesheet keeps the locked palette and no external urls', () => {
   const css = fs.readFileSync('src/style.css', 'utf8');
   assert.match(css, /#14080c/);
@@ -34,6 +46,35 @@ test('stylesheet keeps the locked palette and no external urls', () => {
   assert.equal(css.includes('opacity: 0.45'), false);
   assert.match(css, /min-height: 44px/);
   assert.match(css, /data-candles/);
+});
+
+test('the parlor draws in and the door tells the plot', () => {
+  const css = fs.readFileSync('src/style.css', 'utf8');
+  assert.match(css, /body\[data-room="hungry"\] #manor \{[^}]*padding-left: 48px/);
+  assert.match(css, /body\[data-room="close"\] #manor \{[^}]*padding-left: 32px/);
+  assert.match(css, /body\[data-room="hungry"\] #door \{[^}]*width: 8px/);
+  assert.match(css, /body\[data-room="close"\] #door \{[^}]*width: 3px/);
+  assert.match(css, /body\[data-room="cellar"\] #door \{[^}]*#9b2331/);
+  assert.match(css, /body\[data-room="departure"\] #door \{[^}]*left: 28px/);
+  assert.equal(css.includes('#manor::after'), false);
+});
+
+test('one pool of light can go out', () => {
+  const css = fs.readFileSync('src/style.css', 'utf8');
+  assert.match(css, /--pool: 0\.4;/);
+  assert.match(css, /data-candles="2"\] \{[^}]*--pool: 0\.26;/);
+  assert.match(css, /data-candles="1"\] \{[^}]*--pool: 0\.14;/);
+  assert.match(css, /data-candles="0"\] \{[^}]*--pool: 0;/);
+});
+
+test('the table has weight and the arch is a recess', () => {
+  const css = fs.readFileSync('src/style.css', 'utf8');
+  assert.match(css, /#felt \{[^}]*0 0 0 11px #1a1014/);
+  assert.match(css, /#lord-frame \{[^}]*background: #050203/);
+  assert.match(css, /\.card \{[^}]*background: #f3e6d0/);
+  assert.match(css, /\.card \{[^}]*0 3px 0 #1a1014/);
+  assert.match(css, /#c4a574/);
+  assert.equal(css.includes('url('), false);
 });
 
 test('ui.js never reads the raw hole card', () => {

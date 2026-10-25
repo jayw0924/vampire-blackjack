@@ -3,7 +3,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: #14080c;
+  background: #050203;
   color: #f3e6d0;
   font-family: Georgia, "Iowan Old Style", Palatino, "Palatino Linotype", serif;
 }
@@ -11,31 +11,32 @@ body {
 #parlor {
   max-width: 980px;
   margin: 0 auto;
-  padding: 20px 20px 40px;
+  padding: 28px 20px 48px;
 }
 
 header {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 8px 16px;
+  gap: 4px 16px;
+  margin-bottom: 8px;
 }
 
 .eyebrow {
   margin: 0;
   width: 100%;
-  color: #a89080;
-  letter-spacing: 0.08em;
-  font-size: 0.78rem;
+  color: #6d584c;
+  letter-spacing: 0.14em;
+  font-size: 0.68rem;
   text-transform: uppercase;
 }
 
 h1 {
   margin: 0;
   color: #c4a574;
-  font-size: 1.15rem;
+  font-size: 1.02rem;
   font-weight: normal;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
@@ -51,83 +52,147 @@ h1 {
 }
 
 #manor {
+  --pool: 0.4;
+  --pool-scale: 1;
   position: relative;
-  margin-top: 14px;
-  padding: 18px 64px 22px;
-  border: 1px solid #3a2428;
-  border-top-width: 10px;
-  border-radius: 8px 8px 4px 4px;
+  margin-top: 0;
+  padding: 22px 108px 28px 72px;
+  border: 1px solid #2a181c;
+  border-top: 16px solid #1a1014;
+  border-radius: 2px;
   background:
-    linear-gradient(90deg, #0c0608 0%, transparent 12%, transparent 88%, #0c0608 100%),
-    repeating-linear-gradient(180deg, #1a1014 0 22px, #120c10 22px 26px);
+    linear-gradient(90deg, #050203 0%, transparent 14%, transparent 78%, #050203 100%),
+    linear-gradient(180deg, #1c1216 0%, #14080c 38%, #10080c 100%);
+  box-shadow: inset 0 0 48px #050203;
   overflow: hidden;
+}
+
+#manor[data-candles="2"] {
+  --pool: 0.26;
+  --pool-scale: 0.84;
+}
+#manor[data-candles="1"] {
+  --pool: 0.14;
+  --pool-scale: 0.6;
+}
+#manor[data-candles="0"] {
+  --pool: 0;
+  --pool-scale: 0.42;
 }
 
 #manor::before {
   content: "";
   position: absolute;
-  left: 8%;
-  right: 8%;
+  left: 6%;
+  right: 18%;
   top: 0;
-  height: 46%;
+  height: 54%;
+  z-index: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at 50% 0%, rgba(243, 230, 208, 0.12), transparent 68%);
-  transition: opacity 400ms ease, transform 400ms ease;
+  background: radial-gradient(ellipse at 50% 0%, rgba(243, 230, 208, var(--pool)), transparent 66%);
+  transform: scale(var(--pool-scale));
+  transform-origin: 50% 0;
+  transition: transform 400ms ease;
 }
 
-#manor[data-candles="2"]::before { opacity: 0.7; transform: scale(0.86); }
-#manor[data-candles="1"]::before { opacity: 0.38; transform: scale(0.62); }
-#manor[data-candles="0"]::before { opacity: 0; }
+body[data-room="hungry"] #manor {
+  padding-left: 48px;
+  box-shadow: inset 40px 0 52px #050203;
+}
+body[data-room="close"] #manor {
+  padding-left: 32px;
+  box-shadow: inset 64px 0 72px #050203;
+}
+body[data-room="cellar"] #manor {
+  box-shadow: inset 0 0 100px #050203;
+}
+body[data-room="flushed"] #vial {
+  box-shadow: inset 1px 0 0 rgba(243, 230, 208, 0.28), 0 0 14px #9b2331;
+}
 
-#manor::after {
-  content: "";
+#door {
   position: absolute;
-  top: 28px;
-  right: 22px;
-  width: 7px;
-  height: 78px;
-  background: #1a1014;
-  box-shadow: inset 0 0 0 1px #3a2428;
-}
-
-body[data-room="hungry"] #manor::after { width: 4px; }
-body[data-room="close"] #manor::after { width: 2px; height: 46px; }
-body[data-room="flushed"] #vial { box-shadow: 0 0 14px #9b2331; }
-body[data-room="cellar"] #manor::after {
+  top: 36px;
+  right: 40px;
+  z-index: 2;
   width: 16px;
-  height: 96px;
+  height: 148px;
   background: #050203;
-  box-shadow: inset 0 -14px 0 #9b2331;
+  box-shadow:
+    inset 0 0 14px #050203,
+    -8px 0 0 #1a1014,
+    8px 0 0 #1a1014,
+    0 0 0 1px #3a2428;
+  pointer-events: none;
 }
-body[data-room="dismissal"] #manor::after { width: 3px; background: #a89080; }
-body[data-room="departure"] #manor::after {
-  right: auto;
-  left: 22px;
+body[data-room="hungry"] #door {
+  width: 8px;
+  height: 112px;
+}
+body[data-room="close"] #door {
   width: 3px;
-  background: #a89080;
+  height: 78px;
+}
+body[data-room="cellar"] #door {
+  top: auto;
+  bottom: 28px;
+  width: 22px;
+  height: 196px;
+  background: #050203;
+  box-shadow:
+    inset 0 -18px 0 #9b2331,
+    inset 0 0 18px #050203,
+    -8px 0 0 #1a1014,
+    8px 0 0 #1a1014;
+}
+body[data-room="dismissal"] #door {
+  width: 14px;
+  height: 168px;
+  background: #1a1014;
+  box-shadow:
+    inset 4px 0 0 #a89080,
+    -8px 0 0 #1a1014,
+    8px 0 0 #1a1014;
+}
+body[data-room="departure"] #door {
+  right: auto;
+  left: 28px;
+  width: 14px;
+  height: 168px;
+  background: #1a1014;
+  box-shadow:
+    inset -4px 0 0 #a89080,
+    -8px 0 0 #1a1014,
+    8px 0 0 #1a1014;
 }
 
 #room, #story {
   position: relative;
+  z-index: 1;
   margin: 0;
-  color: #a89080;
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
+  color: #6d584c;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
   text-align: center;
 }
-#story { font-style: italic; min-height: 0; }
+#story { font-style: italic; color: #a89080; }
 #remark:empty, #story:empty { display: none; }
 
 #felt {
   position: relative;
   z-index: 1;
   min-height: 560px;
-  margin: 16px auto 0;
+  margin: 18px auto 0;
   padding: 22px 40px 18px;
   border-radius: 240px;
-  border: 2px solid #8a7048;
+  border: 1px solid #8a7048;
   background: radial-gradient(ellipse at center, #5c242c 0%, #3a151c 46%, #14080c 100%);
-  box-shadow: inset 0 0 60px #14080c;
+  box-shadow:
+    0 0 0 11px #1a1014,
+    0 0 0 12px #8a7048,
+    0 22px 36px #050203,
+    inset 0 24px 36px rgba(243, 230, 208, 0.05),
+    inset 0 0 70px #14080c;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -174,7 +239,7 @@ body[data-room="departure"] #manor::after {
   background: #1a1014;
 }
 .candle.lit {
-  height: 20px;
+  height: 22px;
   background: #f3e6d0;
 }
 .candle.lit::after {
@@ -183,10 +248,10 @@ body[data-room="departure"] #manor::after {
   left: 0;
   top: -14px;
   width: 7px;
-  height: 11px;
+  height: 12px;
   border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
   background: #f3e6d0;
-  box-shadow: 0 0 10px #9b2331;
+  box-shadow: 0 0 8px #8a7048, 0 0 16px #9b2331;
 }
 
 #far { position: relative; padding-top: 132px; }
@@ -199,14 +264,31 @@ body[data-room="departure"] #manor::after {
   transform: translateX(-50%);
   pointer-events: none;
 }
+#lord::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  z-index: 0;
+  width: 220px;
+  height: 64px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 100%, rgba(243, 230, 208, var(--pool)), transparent 72%);
+}
 #candles, #message, #remark, #dealer-rail { position: relative; z-index: 1; }
 #lord-frame {
+  position: relative;
+  z-index: 1;
   width: 186px;
   height: 248px;
   margin: 0 auto;
   border: 1px solid #8a7048;
   border-radius: 100px 100px 4px 4px;
-  background: #0c0608;
+  background: #050203;
+  box-shadow:
+    inset 0 0 32px #050203,
+    0 18px 28px rgba(5, 2, 3, 0.7);
   overflow: hidden;
 }
 #lord-portrait {
@@ -234,7 +316,10 @@ body[data-room="departure"] #manor::after {
   background: #f3e6d0;
   color: #1a1014;
   border: 1px solid #1a1014;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 1px 0 #d4c4ae,
+    0 3px 0 #1a1014,
+    0 12px 16px rgba(5, 2, 3, 0.55);
 }
 .card.red { color: #9b2331; }
 .corner {
@@ -264,6 +349,9 @@ body[data-room="departure"] #manor::after {
   background: #2a1218;
   color: transparent;
   border: 1px solid #c4a574;
+  box-shadow:
+    0 3px 0 #1a1014,
+    0 12px 16px rgba(5, 2, 3, 0.55);
 }
 .back-mark {
   position: absolute;
@@ -286,8 +374,9 @@ body[data-room="departure"] #manor::after {
 .drop {
   width: 12px;
   height: 16px;
-  background: #9b2331;
+  background: radial-gradient(ellipse at 35% 30%, #c45a4a, #9b2331 58%, #6a1822);
   border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+  box-shadow: inset 0 -2px 0 #6a1822;
 }
 #felt:has(.hand + .hand) #stake {
   position: absolute;
@@ -297,12 +386,30 @@ body[data-room="departure"] #manor::after {
 }
 
 #near { padding-bottom: 8px; }
+#betting:not([hidden]),
+#actions:not([hidden]),
+#between:not([hidden]) {
+  margin-top: 10px;
+  padding: 8px 10px 6px;
+  border-radius: 10px;
+  background: #1a1014;
+  box-shadow: inset 0 1px 0 #3a2428, 0 0 0 1px #8a7048;
+}
 
-#vial {
+#cup {
   position: absolute;
-  right: 22px;
-  top: 120px;
-  z-index: 2;
+  right: 12px;
+  bottom: 28px;
+  z-index: 3;
+  width: 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+#vial {
+  position: relative;
   width: 16px;
   height: 148px;
   padding: 3px;
@@ -312,20 +419,43 @@ body[data-room="departure"] #manor::after {
   flex-direction: column-reverse;
   gap: 2px;
   background: #14080c;
+  box-shadow: inset 1px 0 0 rgba(243, 230, 208, 0.28), 0 0 0 1px #1a1014;
 }
 .tick { flex: 1; background: #2a1218; border-radius: 1px; }
 .tick.filled { background: #9b2331; }
 
-#blood { color: #9b2331; font-size: 1.15rem; margin: 14px 0 0; }
-#pending-bet, #ledger { color: #a89080; margin: 4px 0; }
+#blood {
+  margin: 0;
+  width: 84px;
+  color: #9b2331;
+  font-size: 0.78rem;
+  line-height: 1.25;
+  text-align: center;
+}
+#pending-bet {
+  margin: 0;
+  width: 84px;
+  color: #a89080;
+  font-size: 0.68rem;
+  line-height: 1.25;
+  text-align: center;
+}
+#ledger {
+  margin: 16px 0 0;
+  color: #6d584c;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
 #parlor.low #blood,
 body[data-room="close"] #blood { color: #c45a4a; }
+body[data-room="close"] #blood { font-size: 0.92rem; }
 
 button {
   min-height: 44px;
-  background: transparent;
+  background: #14080c;
   color: #f3e6d0;
-  border: 1px solid #a89080;
+  border: 1px solid #3a2428;
   border-radius: 4px;
   padding: 8px 14px;
   margin: 4px 6px 4px 0;
@@ -334,8 +464,11 @@ button {
 #mute {
   margin-left: auto;
   min-height: 36px;
-  font-size: 0.8rem;
-  color: #a89080;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: #6d584c;
+  background: transparent;
+  border-color: #3a2428;
 }
 button:hover { border-color: #8a7048; }
 button:focus-visible { outline: 2px solid #8a7048; outline-offset: 2px; }
@@ -364,9 +497,16 @@ button:disabled { opacity: 0.35; }
 }
 
 @media (max-width: 640px) {
-  #manor { padding: 12px 12px 16px; }
-  #vial { right: 8px; top: 88px; height: 110px; }
+  #manor { padding: 12px 72px 16px 12px; }
+  #cup { right: 4px; bottom: 12px; width: 60px; }
+  #vial { height: 110px; }
+  #blood, #pending-bet { width: 60px; font-size: 0.62rem; }
+  #door { top: 14px; right: 22px; height: 64px; }
+  body[data-room="departure"] #door { right: auto; left: 8px; }
+  body[data-room="cellar"] #door { height: 120px; bottom: 12px; }
   #felt { border-radius: 120px; min-height: 480px; padding: 14px 10px; }
   .card { width: 64px; height: 96px; margin: 0 -14px; }
   #candles { gap: 36px; }
+  #lord-frame { width: 132px; height: 176px; }
+  #far { padding-top: 96px; }
 }
