@@ -13,49 +13,55 @@
       <h1>Lord Vesper's Table</h1>
       <button id="mute" type="button">Let the room speak</button>
     </header>
-    <p id="room"></p>
-    <p id="story"></p>
-    <div id="manor">
-      <div id="candles" aria-hidden="true"></div>
-      <figure id="lord">
-        <div id="lord-frame" data-portrait="empty" aria-hidden="true"></div>
-        <figcaption>Lord Vesper</figcaption>
-      </figure>
-      <p id="message" role="status"></p>
-      <p id="remark"></p>
+    <div id="manor" data-candles="3">
+      <p id="room"></p>
+      <p id="story"></p>
       <div id="felt">
-        <section id="dealer-rail" aria-label="Lord Vesper">
-          <h2 class="visually-hidden">Lord Vesper</h2>
-          <div id="dealer-cards" class="cards"></div>
-          <p id="dealer-value"></p>
-        </section>
+        <div id="far">
+          <div id="candles" aria-hidden="true"></div>
+          <figure id="lord">
+            <div id="lord-frame" data-portrait="empty">
+              <img id="lord-portrait" alt="">
+            </div>
+            <figcaption class="visually-hidden">Lord Vesper</figcaption>
+          </figure>
+          <p id="message" role="status"></p>
+          <p id="remark"></p>
+          <section id="dealer-rail" aria-label="Lord Vesper">
+            <h2 class="visually-hidden">Lord Vesper</h2>
+            <div id="dealer-cards" class="cards"></div>
+            <p id="dealer-value"></p>
+          </section>
+        </div>
         <div id="stake" aria-hidden="true"></div>
-        <section id="player-rail" aria-label="You">
-          <h2 class="visually-hidden">You</h2>
-          <div id="player-hands"></div>
-        </section>
+        <div id="near">
+          <section id="player-rail" aria-label="You">
+            <h2 class="visually-hidden">You</h2>
+            <div id="player-hands"></div>
+          </section>
+          <div id="betting">
+            <button id="bet-down" type="button">Lower stake</button>
+            <button id="bet-up" type="button">Raise stake</button>
+            <button id="deal" type="button">Deal</button>
+            <button id="withdraw" type="button">Leave the table</button>
+          </div>
+          <div id="actions">
+            <button id="hit" type="button">Hit</button>
+            <button id="stand" type="button">Stand</button>
+            <button id="double" type="button">Double</button>
+            <button id="split" type="button">Split</button>
+          </div>
+          <div id="between">
+            <button id="continue" type="button">Next hand</button>
+            <button id="new-evening" type="button">Another evening</button>
+          </div>
+        </div>
       </div>
       <div id="vial" aria-label="Blood remaining"></div>
     </div>
     <p id="ledger"></p>
     <p id="blood"></p>
     <p id="pending-bet"></p>
-    <div id="betting">
-      <button id="bet-down" type="button">Lower stake</button>
-      <button id="bet-up" type="button">Raise stake</button>
-      <button id="deal" type="button">Deal</button>
-      <button id="withdraw" type="button">Leave the table</button>
-    </div>
-    <div id="actions">
-      <button id="hit" type="button">Hit</button>
-      <button id="stand" type="button">Stand</button>
-      <button id="double" type="button">Double</button>
-      <button id="split" type="button">Split</button>
-    </div>
-    <div id="between">
-      <button id="continue" type="button">Next hand</button>
-      <button id="new-evening" type="button">Another evening</button>
-    </div>
   </main>
   <script type="module" src="src/ui.js"></script>
 </body>

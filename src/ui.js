@@ -67,6 +67,7 @@ function mountCards(el, cards) {
 function paint(game) {
   const view = present(publicView(game));
   document.body.dataset.room = view.room || 'composed';
+  must('manor').dataset.candles = String(view.candleCount);
   must('parlor').classList.toggle('low', view.lowBlood);
   must('room').textContent = view.roomLine;
   must('story').textContent = view.story;
@@ -125,6 +126,17 @@ function boot() {
     const muted = toggleMute();
     must('mute').textContent = muted ? 'Let the room speak' : 'Silence the room';
   });
+  const portrait = must('lord-portrait');
+  const portraits = ['assets/lord.webp', 'assets/lord.png', 'assets/lord.jpg', 'assets/lord.jpeg'];
+  const tryPortrait = (index) => {
+    if (index >= portraits.length) return;
+    portrait.addEventListener('load', () => {
+      must('lord-frame').dataset.portrait = 'set';
+    }, { once: true });
+    portrait.addEventListener('error', () => tryPortrait(index + 1), { once: true });
+    portrait.src = portraits[index];
+  };
+  tryPortrait(0);
   render();
 }
 

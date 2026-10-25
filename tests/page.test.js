@@ -30,6 +30,9 @@ test('stylesheet keeps the locked palette and no external urls', () => {
   assert.match(css, /#8e2f3a/);
   assert.equal(css.includes('url('), false);
   assert.equal(/googleapis|comic sans|#7c3aed|purple/i.test(css), false);
+  assert.equal(css.includes('opacity: 0.45'), false);
+  assert.match(css, /min-height: 44px/);
+  assert.match(css, /data-candles/);
 });
 
 test('ui.js never reads the raw hole card', () => {
