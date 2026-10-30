@@ -1,14 +1,18 @@
-# Lord Vesper's Table
+# Vigil
 
-Blackjack at a private table in the Crimson Parlor. The dealer is Lord Vesper. The stake is your blood.
+Blackjack at Lord Vesper's private table in the Crimson Parlor. The dealer is Lord Vesper. The stake is your blood.
 
 You start with 20 drops. Bet 2, 4, 6, 8, or 10. Ordinary wins pay even money. A natural pays 3 to 2. The dealer stands on 17, including soft 17. You may double on your first two cards, and split once. You may not double after a split, resplit, or take insurance.
 
 At 40 drops, the Lord sends you out. Below 2, the evening ends in the cellar. You may leave on your own before the deal.
 
-The room changes with your blood. The Lord remarks on the hand he can see, never the hole card. A short story plays once, at the door and again when he first hears your heart. The room is silent until you ask it to speak.
+The room changes with your blood. The Lord remarks on the hand he can see, never the hole card. A short story plays once, at the door and again when he first hears your heart. The room is silent until you switch Sound on.
 
 The table is a felt oval in a stone parlor. Candles and the vial follow the evening. Lord Vesper's portrait is the local file `assets/lord.png`. Do not hotlink an image.
+
+## Keys
+
+H hit, S stand, D double. Space deals, moves to the next hand, or begins another evening.
 
 ## Run
 

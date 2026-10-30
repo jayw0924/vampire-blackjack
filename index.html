@@ -3,15 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lord Vesper's Table</title>
+  <title>Vigil</title>
+  <meta name="description" content="A vampire's blackjack. The stake is your blood. The dealer is Lord Vesper.">
+  <meta name="theme-color" content="#050203">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Vigil">
+  <meta property="og:title" content="Vigil">
+  <meta property="og:description" content="A vampire's blackjack. The stake is your blood. The dealer is Lord Vesper.">
+  <meta property="og:url" content="https://vampire-blackjack.vercel.app/">
+  <meta property="og:image" content="https://vampire-blackjack.vercel.app/assets/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Vigil">
+  <meta name="twitter:description" content="A vampire's blackjack. The stake is your blood. The dealer is Lord Vesper.">
+  <meta name="twitter:image" content="https://vampire-blackjack.vercel.app/assets/og.jpg">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.ico" sizes="32x32">
   <link rel="stylesheet" href="src/style.css">
 </head>
 <body>
   <main id="parlor">
     <header>
       <p class="eyebrow">Castle Vesper · The Crimson Parlor</p>
-      <h1>Lord Vesper's Table</h1>
-      <button id="mute" type="button">Let the room speak</button>
+      <h1>Vigil</h1>
+      <button id="mute" type="button" aria-pressed="false">Sound off</button>
     </header>
     <div id="manor" data-candles="3">
       <div id="door" aria-hidden="true"></div>
@@ -19,15 +33,18 @@
       <p id="story"></p>
       <div id="felt">
         <div id="far">
-          <div id="candles" aria-hidden="true"></div>
           <figure id="lord">
             <div id="lord-frame" data-portrait="set">
               <img id="lord-portrait" src="assets/lord.png" alt="">
             </div>
             <figcaption class="visually-hidden">Lord Vesper</figcaption>
           </figure>
-          <p id="message" role="status"></p>
-          <p id="remark"></p>
+          <div id="candles" aria-hidden="true"></div>
+          <div id="plate">
+            <p id="plate-name" aria-hidden="true">Lord Vesper</p>
+            <p id="message" role="status"></p>
+            <p id="remark"></p>
+          </div>
           <section id="dealer-rail" aria-label="Lord Vesper">
             <h2 class="visually-hidden">Lord Vesper</h2>
             <div id="dealer-cards" class="cards"></div>
@@ -35,6 +52,7 @@
           </section>
         </div>
         <div id="stake" aria-hidden="true"></div>
+        <p id="stamp" aria-hidden="true"></p>
         <div id="near">
           <section id="player-rail" aria-label="You">
             <h2 class="visually-hidden">You</h2>
@@ -43,18 +61,18 @@
           <div id="betting">
             <button id="bet-down" type="button">Lower stake</button>
             <button id="bet-up" type="button">Raise stake</button>
-            <button id="deal" type="button">Deal</button>
+            <button id="deal" type="button" aria-keyshortcuts="Space">Deal<span class="key" aria-hidden="true">Space</span></button>
             <button id="withdraw" type="button">Leave the table</button>
           </div>
           <div id="actions">
-            <button id="hit" type="button">Hit</button>
-            <button id="stand" type="button">Stand</button>
-            <button id="double" type="button">Double</button>
+            <button id="hit" type="button" aria-keyshortcuts="H">Hit<span class="key" aria-hidden="true">H</span></button>
+            <button id="stand" type="button" aria-keyshortcuts="S">Stand<span class="key" aria-hidden="true">S</span></button>
+            <button id="double" type="button" aria-keyshortcuts="D">Double<span class="key" aria-hidden="true">D</span></button>
             <button id="split" type="button">Split</button>
           </div>
           <div id="between">
-            <button id="continue" type="button">Next hand</button>
-            <button id="new-evening" type="button">Another evening</button>
+            <button id="continue" type="button" aria-keyshortcuts="Space">Next hand<span class="key" aria-hidden="true">Space</span></button>
+            <button id="new-evening" type="button" aria-keyshortcuts="Space">Another evening<span class="key" aria-hidden="true">Space</span></button>
           </div>
         </div>
       </div>
@@ -66,6 +84,8 @@
     </div>
     <p id="ledger"></p>
   </main>
+  <div id="vignette" aria-hidden="true"></div>
+  <div id="grain" aria-hidden="true"></div>
   <script type="module" src="src/ui.js"></script>
 </body>
 </html>

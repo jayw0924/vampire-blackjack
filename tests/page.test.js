@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { TITLE } from '../src/config.js';
 
 test('index.html has the parlor controls and no remote assets', () => {
   const html = fs.readFileSync('index.html', 'utf8');
@@ -10,15 +11,21 @@ test('index.html has the parlor controls and no remote assets', () => {
     'hit', 'stand', 'double', 'split', 'continue', 'new-evening', 'betting',
     'actions', 'between', 'room', 'remark', 'story', 'mute',
     'manor', 'candles', 'lord', 'lord-frame', 'felt', 'stake', 'vial',
+    'plate', 'stamp', 'vignette', 'grain',
   ]) {
     assert.equal(html.includes(`id="${id}"`), true, `missing #${id}`);
   }
-  assert.match(html, /Lord Vesper's Table/);
+  assert.equal(html.includes(`<title>${TITLE}</title>`), true);
   assert.match(html, /src\/ui\.js/);
   assert.match(html, /src\/style\.css/);
   assert.match(html, /assets\/lord\.png/);
+  // Nothing loads from elsewhere. Absolute URLs may only appear as link-preview
+  // metadata (og:url, og:image, twitter:image), which the page itself never fetches.
   assert.equal(html.includes('http://'), false);
-  assert.equal(html.includes('https://'), false);
+  const loaders = html.match(/<(?:link|script|img|source|iframe)\b[^>]*>/g) || [];
+  for (const tag of loaders) assert.equal(/https?:\/\//.test(tag), false, tag);
+  const withoutMeta = html.replace(/<meta\b[^>]*>/g, '');
+  assert.equal(withoutMeta.includes('https://'), false);
   assert.equal(/insurance/i.test(html), false);
 });
 
@@ -85,4 +92,42 @@ test('ui.js never reads the raw hole card', () => {
   assert.equal(src.includes('insertAdjacentHTML'), false);
   assert.equal(/insurance/i.test(src), false);
   assert.equal(src.includes('Math.random'), false);
+});
+
+test('the lines from the Lord sit on a plate, not on the portrait', () => {
+  const html = fs.readFileSync('index.html', 'utf8');
+  const lord = html.slice(html.indexOf('id="lord"'), html.indexOf('</figure>'));
+  for (const id of ['message', 'remark', 'candles']) {
+    assert.equal(lord.includes(`id="${id}"`), false, `#${id} is inside the portrait figure`);
+  }
+  const css = fs.readFileSync('src/style.css', 'utf8');
+  assert.equal(/#far \{[^}]*padding-top: 132px/.test(css), false);
+  assert.match(css, /#lord \{[^}]*position: relative/);
+});
+
+test('type stays legible: nothing under 0.72rem, and 44px touch targets', () => {
+  const css = fs.readFileSync('src/style.css', 'utf8');
+  for (const [, size] of css.matchAll(/font-size:\s*([\d.]+)rem/g)) {
+    assert.equal(Number(size) >= 0.72, true, `font-size ${size}rem is too small`);
+  }
+  assert.equal(css.includes('#6d584c'), false, 'the old low-contrast brown is back');
+  assert.match(css, /#mute \{[^}]*min-height: 44px/);
+});
+
+test('cards deal in over about 280ms, the hole card flips, and motion can be turned off', () => {
+  const css = fs.readFileSync('src/style.css', 'utf8');
+  assert.match(css, /\.card\.dealt \{[^}]*animation: deal-in 280ms/);
+  assert.match(css, /\.card\.turning/);
+  assert.match(css, /\.card\.unflip/);
+  const motion = css.slice(css.indexOf('@media (prefers-reduced-motion: no-preference)'));
+  assert.equal(motion.includes('.card.dealt'), true);
+  assert.equal(/^\.card\.dealt/m.test(css.slice(0, css.indexOf('@media (prefers-reduced-motion: no-preference)'))), false);
+});
+
+test('the favicon exists and the page points at it', () => {
+  const html = fs.readFileSync('index.html', 'utf8');
+  assert.match(html, /rel="icon" href="assets\/favicon\.svg"/);
+  assert.equal(fs.existsSync('assets/favicon.svg'), true);
+  assert.equal(fs.existsSync('favicon.ico'), true);
+  assert.equal(fs.existsSync('assets/og.jpg'), true);
 });

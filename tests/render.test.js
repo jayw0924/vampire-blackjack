@@ -53,3 +53,21 @@ test('shown cards have a suit and the hole card does not', () => {
   assert.equal(shown.candleCount, 3);
   assert.equal(JSON.stringify(shown).includes('3♣'), false);
 });
+
+test('face cards carry their rank for the corner, the hole card carries nothing', () => {
+  const shown = present(publicView(deal(createGame({ shoe: cards('10S', '5H', '6D', '3C') }))));
+  assert.equal(shown.dealerCards[0].rank, '5');
+  assert.equal(shown.playerHands[0].cards[0].rank, '10');
+  assert.equal('rank' in shown.dealerCards[1], false);
+  assert.deepEqual(shown.dealerTotals, []);
+  assert.equal(shown.blood, 18);
+});
+
+test('a settled hand reports running dealer totals and the stamp', () => {
+  let game = deal(createGame({ shoe: cards('AS', '6H', 'KD', '5C', '3S', '4D', '9S') }));
+  assert.equal(game.phase, 'settled');
+  const shown = present(publicView(game));
+  assert.equal(shown.stamp, 'Blackjack');
+  assert.deepEqual(shown.dealerTotals, [6, 11]);
+  assert.equal(shown.dealerValueLabel, '11');
+});

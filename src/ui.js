@@ -2,8 +2,12 @@ import {
   betDown, betUp, createGame, deal, doubleDown, hit, newEvening,
   nextHand, publicView, split, stand, withdraw,
 } from './game.js';
-import { present } from './render.js';
-import { setCue, toggleMute } from './score.js';
+import { TITLE } from './config.js';
+import { grainTile } from './grain.js';
+import { keyAction } from './keys.js';
+import { bloodLabel, present, vialFilled } from './render.js';
+import { isMuted, setBlood, setCue, snap, toggleMute } from './score.js';
+import { TIMING, needsStaging, stageSteps } from './stage.js';
 
 const BUTTONS = [
   ['bet-down', 'bet_down', betDown],
@@ -35,37 +39,152 @@ function fillCount(el, count, total, className) {
   }
 }
 
-function mountCards(el, cards) {
-  el.replaceChildren();
-  for (const card of cards) {
-    const div = document.createElement('div');
-    div.className = card.hidden ? 'card back' : `card ${card.red ? 'red' : 'black'}`;
-    div.setAttribute('aria-label', card.aria);
-    if (card.hidden) {
-      const mark = document.createElement('span');
-      mark.className = 'back-mark';
-      mark.setAttribute('aria-hidden', 'true');
-      div.append(mark);
-    } else {
-      const top = document.createElement('span');
-      top.className = 'corner';
-      top.textContent = card.label;
-      const pip = document.createElement('span');
-      pip.className = 'pip';
-      pip.setAttribute('aria-hidden', 'true');
-      pip.textContent = card.suitGlyph;
-      const bottom = document.createElement('span');
-      bottom.className = 'corner minor';
-      bottom.setAttribute('aria-hidden', 'true');
-      bottom.textContent = card.label;
-      div.append(top, pip, bottom);
-    }
-    el.append(div);
-  }
+function motionOk() {
+  return !globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 }
 
-function paint(game) {
-  const view = present(publicView(game));
+function buildCard(card) {
+  const div = document.createElement('div');
+  div.className = card.hidden ? 'card back' : `card ${card.red ? 'red' : 'black'}`;
+  div.dataset.key = card.hidden ? 'hole' : card.aria;
+  div.setAttribute('aria-label', card.aria);
+  if (card.hidden) {
+    const mark = document.createElement('span');
+    mark.className = 'back-mark';
+    mark.setAttribute('aria-hidden', 'true');
+    div.append(mark);
+    return div;
+  }
+  const corner = (extra) => {
+    const el = document.createElement('span');
+    el.className = extra ? 'corner minor' : 'corner';
+    el.setAttribute('aria-hidden', 'true');
+    const rank = document.createElement('span');
+    rank.className = 'rank';
+    rank.textContent = card.rank;
+    const suit = document.createElement('span');
+    suit.className = 'suit';
+    suit.textContent = card.suitGlyph;
+    el.append(rank, suit);
+    return el;
+  };
+  const pip = document.createElement('span');
+  pip.className = 'pip';
+  pip.setAttribute('aria-hidden', 'true');
+  pip.textContent = card.suitGlyph;
+  div.append(corner(false), pip, corner(true));
+  return div;
+}
+
+// Turn the hole card: it goes edge-on, then the face turns in.
+function revealHole(old, card) {
+  old.dataset.flipping = 'true';
+  const swap = () => {
+    if (!old.isConnected) return;
+    const face = buildCard(card);
+    if (motionOk()) face.classList.add('unflip');
+    old.replaceWith(face);
+  };
+  if (!motionOk()) {
+    swap();
+    return;
+  }
+  old.classList.add('turning');
+  setTimeout(swap, 200);
+}
+
+// Keep the cards already on the felt and only add what is new, so a Hit does
+// not replay the whole hand. Returns the cards that need to travel in.
+function mountCards(el, cards, side) {
+  const fresh = [];
+  const have = Array.from(el.children);
+  let keep = 0;
+  while (keep < cards.length && keep < have.length) {
+    const want = cards[keep].hidden ? 'hole' : cards[keep].aria;
+    const now = have[keep];
+    if (now.dataset.key === want) {
+      keep += 1;
+    } else if (now.dataset.key === 'hole' && !cards[keep].hidden) {
+      if (now.dataset.flipping !== 'true') revealHole(now, cards[keep]);
+      keep += 1;
+    } else {
+      break;
+    }
+  }
+  for (const node of have.slice(keep)) node.remove();
+  for (let i = keep; i < cards.length; i += 1) {
+    const node = buildCard(cards[i]);
+    el.append(node);
+    fresh.push({ node, side, index: i });
+  }
+  return fresh;
+}
+
+function dealCards(fresh) {
+  fresh.sort((x, y) => x.index - y.index || x.side - y.side);
+  fresh.forEach(({ node }, n) => {
+    const delay = n * TIMING.deal;
+    if (motionOk()) {
+      node.classList.add('dealt');
+      node.style.setProperty('--delay', `${delay}ms`);
+    }
+    snap(delay);
+  });
+}
+
+function cardCount(view) {
+  if (!view) return 0;
+  const mine = view.playerHands.reduce((sum, hand) => sum + hand.cards.length, 0);
+  return mine + Math.min(view.dealerCards.length, 2);
+}
+
+function handNode(index) {
+  const wrap = document.createElement('div');
+  wrap.className = 'hand';
+  const label = document.createElement('p');
+  label.className = 'label';
+  const cards = document.createElement('div');
+  cards.className = 'cards';
+  const total = document.createElement('p');
+  total.className = 'total';
+  const num = document.createElement('span');
+  num.className = 'num';
+  const tag = document.createElement('span');
+  tag.className = 'tag';
+  total.append(num, tag);
+  wrap.append(label, cards, total);
+  wrap.dataset.index = String(index);
+  return wrap;
+}
+
+let bloodShown = null;
+let bloodFrame = 0;
+
+function showBlood(view) {
+  const apply = (n) => {
+    must('blood').textContent = bloodLabel(n);
+    fillCount(must('vial'), vialFilled(n), 10, 'tick');
+  };
+  cancelAnimationFrame(bloodFrame);
+  const from = bloodShown;
+  bloodShown = view.blood;
+  setBlood(view.blood);
+  if (from === null || from === view.blood || !motionOk()) {
+    apply(view.blood);
+    return;
+  }
+  const start = performance.now();
+  const span = 700;
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / span);
+    const eased = 1 - (1 - t) * (1 - t);
+    apply(t >= 1 ? view.blood : Math.round(from + (view.blood - from) * eased));
+    if (t < 1) bloodFrame = requestAnimationFrame(step);
+  };
+  bloodFrame = requestAnimationFrame(step);
+}
+
+function paint(view, { hold = false } = {}) {
   document.body.dataset.room = view.room || 'composed';
   must('manor').dataset.candles = String(view.candleCount);
   must('parlor').classList.toggle('low', view.lowBlood);
@@ -73,35 +192,38 @@ function paint(game) {
   must('story').textContent = view.story;
   must('message').textContent = view.message;
   must('remark').textContent = view.remark;
-  must('blood').textContent = view.bloodLabel;
   must('pending-bet').textContent = view.stakeLabel;
   must('ledger').textContent = view.ledger;
   must('dealer-value').textContent = view.dealerValueLabel;
-  mountCards(must('dealer-cards'), view.dealerCards);
+  const stamp = must('stamp');
+  stamp.textContent = view.stamp;
+  if (view.stamp) stamp.dataset.kind = view.stamp.toLowerCase();
+  else delete stamp.dataset.kind;
+  // Press the seal into the gap between his cards and yours.
+  const felt = must('felt').getBoundingClientRect();
+  const above = must('dealer-rail').getBoundingClientRect().bottom;
+  const below = must('near').getBoundingClientRect().top;
+  stamp.style.top = `${Math.round((above + below) / 2 - felt.top)}px`;
+  if (!hold) showBlood(view);
   fillCount(must('candles'), view.candleCount, 3, 'candle');
   fillCount(must('stake'), view.stakeDrops, view.stakeDrops, 'drop');
-  fillCount(must('vial'), view.vialFilled, 10, 'tick');
   setCue(view.cue);
 
+  const fresh = mountCards(must('dealer-cards'), view.dealerCards, 1);
   const hands = must('player-hands');
-  hands.replaceChildren();
+  while (hands.children.length > view.playerHands.length) hands.lastElementChild.remove();
+  while (hands.children.length < view.playerHands.length) hands.append(handNode(hands.children.length));
   view.playerHands.forEach((hand, index) => {
-    const wrap = document.createElement('div');
+    const wrap = hands.children[index];
     wrap.className = hand.active ? 'hand active' : 'hand';
-    const label = document.createElement('p');
-    label.textContent = view.playerHands.length === 1
+    wrap.querySelector('.label').textContent = view.playerHands.length === 1
       ? 'Your hand'
       : (index === 0 ? 'First hand' : 'Second hand');
-    const cards = document.createElement('div');
-    cards.className = 'cards';
-    mountCards(cards, hand.cards);
-    const value = document.createElement('p');
-    value.textContent = hand.outcomeLabel
-      ? `${hand.valueLabel} · ${hand.outcomeLabel}`
-      : hand.valueLabel;
-    wrap.append(label, cards, value);
-    hands.append(wrap);
+    wrap.querySelector('.num').textContent = hand.valueLabel;
+    wrap.querySelector('.tag').textContent = hand.outcomeLabel;
+    fresh.push(...mountCards(wrap.querySelector('.cards'), hand.cards, 0));
   });
+  dealCards(fresh);
 
   must('betting').hidden = !view.showBetting;
   must('actions').hidden = !view.showActions;
@@ -114,18 +236,88 @@ function paint(game) {
 }
 
 function boot() {
+  document.title = TITLE;
+  must('parlor').querySelector('h1').textContent = TITLE;
+  must('grain').style.backgroundImage = `url("${grainTile()}")`;
+
   let game = createGame({ seed: Date.now() >>> 0 });
-  const render = () => paint(game);
+  let shown = null;
+  let timers = [];
+  let scene = null;
+
+  const show = (view, options) => {
+    shown = view;
+    paint(view, options);
+  };
+  const finish = () => {
+    if (!scene) return;
+    timers.forEach(clearTimeout);
+    timers = [];
+    const done = scene;
+    scene = null;
+    show(done.final);
+  };
+  const act = (fn) => {
+    if (scene) return;
+    const prevPhase = publicView(game).phase;
+    game = fn(game);
+    const view = present(publicView(game));
+    if (motionOk() && needsStaging(prevPhase, view)) {
+      const dealt = Math.max(0, cardCount(view) - cardCount(shown));
+      const steps = stageSteps(view, shown, dealt);
+      scene = { final: view };
+      steps.forEach((step, i) => {
+        const last = i === steps.length - 1;
+        const run = () => (last ? finish() : show(step.view, { hold: true }));
+        if (step.at === 0) run();
+        else timers.push(setTimeout(run, step.at));
+      });
+    } else {
+      show(view);
+    }
+  };
+
   for (const [id, , fn] of BUTTONS) {
-    must(id).addEventListener('click', () => {
-      game = fn(game);
-      render();
-    });
+    must(id).addEventListener('click', () => act(fn));
   }
-  must('mute').addEventListener('click', () => {
-    const muted = toggleMute();
-    must('mute').textContent = muted ? 'Let the room speak' : 'Silence the room';
+  must('felt').addEventListener('click', (event) => {
+    // A tap on the felt (not a button) skips ahead to the verdict.
+    if (!(event.target instanceof Element) || event.target.closest('button')) return;
+    finish();
   });
+  document.addEventListener('keydown', (event) => {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (event.target instanceof HTMLElement && event.target.closest('input, textarea, select')) return;
+    const isSpace = event.key === ' ';
+    if (scene) {
+      if (isSpace || event.key === 'Enter') {
+        event.preventDefault();
+        finish();
+      }
+      return;
+    }
+    // A focused button already answers Space and Enter natively.
+    if ((isSpace || event.key === 'Enter') && event.target instanceof HTMLButtonElement) return;
+    const id = keyAction(event.key, shown ? shown.enabled : []);
+    if (!id) return;
+    event.preventDefault();
+    must(id).click();
+  });
+
+  const sync = () => {
+    const muted = isMuted();
+    must('mute').textContent = muted ? 'Sound off' : 'Sound on';
+    must('mute').setAttribute('aria-pressed', String(!muted));
+  };
+  must('mute').addEventListener('click', (event) => {
+    toggleMute();
+    sync();
+    // After a mouse or touch click, hand the keyboard back to the table
+    // (Space should deal, not flip the sound again).
+    if (event.detail > 0) must('mute').blur();
+  });
+  sync();
+
   const portrait = must('lord-portrait');
   const markPortrait = () => {
     must('lord-frame').dataset.portrait = portrait.naturalWidth > 0 ? 'set' : 'empty';
@@ -135,7 +327,7 @@ function boot() {
     must('lord-frame').dataset.portrait = 'empty';
   });
   if (portrait.complete) markPortrait();
-  render();
+  show(present(publicView(game)));
 }
 
 boot();
