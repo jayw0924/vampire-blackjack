@@ -4,3 +4,5 @@
 export const TITLE = 'Vigil';
 export const TAGLINE = "A vampire's blackjack. The stake is your blood. The dealer is Lord Vesper.";
 export const SITE_URL = 'https://vampire-blackjack.vercel.app/';
+// The slim top line before the run layer exists (stage 1).
+export const FLOOR_NAME = 'Floor I · The Steward';

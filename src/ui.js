@@ -2,7 +2,7 @@ import {
   betDown, betUp, createGame, deal, doubleDown, hit, newEvening,
   nextHand, publicView, split, stand, withdraw,
 } from './game.js';
-import { TITLE } from './config.js';
+import { FLOOR_NAME, TITLE } from './config.js';
 import { grainTile } from './grain.js';
 import { keyAction } from './keys.js';
 import { bloodLabel, present, vialFilled } from './render.js';
@@ -28,15 +28,23 @@ function must(id) {
   return el;
 }
 
+// Keep the same elements and toggle their state, so CSS transitions can run.
 function fillCount(el, count, total, className) {
-  el.replaceChildren();
-  for (let i = 0; i < total; i += 1) {
-    const mark = document.createElement('span');
-    mark.className = i < count ? `${className} on` : className;
-    if (className === 'candle' && i < count) mark.classList.add('lit');
-    if (className === 'tick' && i < count) mark.classList.add('filled');
-    el.append(mark);
+  if (el.children.length !== total) {
+    el.replaceChildren();
+    for (let i = 0; i < total; i += 1) {
+      const mark = document.createElement('span');
+      mark.className = className;
+      el.append(mark);
+    }
   }
+  Array.from(el.children).forEach((mark, i) => {
+    const on = i < count;
+    mark.className = className;
+    if (on) mark.classList.add('on');
+    if (on && className === 'candle') mark.classList.add('lit');
+    if (on && className === 'tick') mark.classList.add('filled');
+  });
 }
 
 function motionOk() {
@@ -143,6 +151,8 @@ function handNode(index) {
   wrap.className = 'hand';
   const label = document.createElement('p');
   label.className = 'label';
+  const row = document.createElement('div');
+  row.className = 'cardrow';
   const cards = document.createElement('div');
   cards.className = 'cards';
   const total = document.createElement('p');
@@ -152,17 +162,37 @@ function handNode(index) {
   const tag = document.createElement('span');
   tag.className = 'tag';
   total.append(num, tag);
-  wrap.append(label, cards, total);
+  row.append(cards, total);
+  wrap.append(label, row);
   wrap.dataset.index = String(index);
   return wrap;
 }
 
 let bloodShown = null;
 let bloodFrame = 0;
+let vialTimer = 0;
+
+function writeBlood(n) {
+  const el = must('blood');
+  el.replaceChildren();
+  const count = document.createElement('span');
+  count.className = 'count';
+  count.textContent = String(n);
+  el.append(count, n === 1 ? 'drop of blood' : 'drops of blood');
+}
+
+function flashVial(kind) {
+  const vial = must('vial');
+  vial.classList.remove('gain', 'loss');
+  void vial.offsetWidth;
+  vial.classList.add(kind);
+  clearTimeout(vialTimer);
+  vialTimer = setTimeout(() => vial.classList.remove('gain', 'loss'), 1100);
+}
 
 function showBlood(view) {
   const apply = (n) => {
-    must('blood').textContent = bloodLabel(n);
+    writeBlood(n);
     fillCount(must('vial'), vialFilled(n), 10, 'tick');
   };
   cancelAnimationFrame(bloodFrame);
@@ -173,8 +203,9 @@ function showBlood(view) {
     apply(view.blood);
     return;
   }
+  flashVial(view.blood > from ? 'gain' : 'loss');
   const start = performance.now();
-  const span = 700;
+  const span = 900;
   const step = (now) => {
     const t = Math.min(1, (now - start) / span);
     const eased = 1 - (1 - t) * (1 - t);
@@ -193,17 +224,27 @@ function paint(view, { hold = false } = {}) {
   must('message').textContent = view.message;
   must('remark').textContent = view.remark;
   must('pending-bet').textContent = view.stakeLabel;
-  must('ledger').textContent = view.ledger;
+  const ledger = must('ledger');
+  if (ledger.textContent !== view.ledger) {
+    ledger.textContent = view.ledger;
+    ledger.classList.remove('pop');
+    if (view.ledger) {
+      void ledger.offsetWidth;
+      ledger.classList.add('pop');
+    }
+  }
+  must('dawn-left').textContent = view.dawnLine || '';
+  must('floor-name').textContent = view.floorName || FLOOR_NAME;
   must('dealer-value').textContent = view.dealerValueLabel;
   const stamp = must('stamp');
   stamp.textContent = view.stamp;
   if (view.stamp) stamp.dataset.kind = view.stamp.toLowerCase();
   else delete stamp.dataset.kind;
-  // Press the seal into the gap between his cards and yours.
+  // Press the seal onto your cards.
   const felt = must('felt').getBoundingClientRect();
-  const above = must('dealer-rail').getBoundingClientRect().bottom;
-  const below = must('near').getBoundingClientRect().top;
-  stamp.style.top = `${Math.round((above + below) / 2 - felt.top)}px`;
+  const mine = must('player-hands').getBoundingClientRect();
+  stamp.style.top = `${Math.round(mine.top + mine.height / 2 - felt.top)}px`;
+  stamp.style.left = `${Math.round(mine.left + mine.width / 2 - felt.left)}px`;
   if (!hold) showBlood(view);
   fillCount(must('candles'), view.candleCount, 3, 'candle');
   fillCount(must('stake'), view.stakeDrops, view.stakeDrops, 'drop');
@@ -211,6 +252,7 @@ function paint(view, { hold = false } = {}) {
 
   const fresh = mountCards(must('dealer-cards'), view.dealerCards, 1);
   const hands = must('player-hands');
+  hands.classList.toggle('multi', view.playerHands.length > 1);
   while (hands.children.length > view.playerHands.length) hands.lastElementChild.remove();
   while (hands.children.length < view.playerHands.length) hands.append(handNode(hands.children.length));
   view.playerHands.forEach((hand, index) => {
@@ -242,6 +284,7 @@ function boot() {
 
   let game = createGame({ seed: Date.now() >>> 0 });
   let shown = null;
+  let handNo = 0;
   let timers = [];
   let scene = null;
 
@@ -260,8 +303,11 @@ function boot() {
   const act = (fn) => {
     if (scene) return;
     const prevPhase = publicView(game).phase;
+    if (fn === deal) handNo += 1;
+    if (fn === newEvening) handNo = 0;
     game = fn(game);
     const view = present(publicView(game));
+    view.dawnLine = `Hand ${Math.max(handNo, 1)}`;
     if (motionOk() && needsStaging(prevPhase, view)) {
       const dealt = Math.max(0, cardCount(view) - cardCount(shown));
       const steps = stageSteps(view, shown, dealt);
@@ -327,7 +373,9 @@ function boot() {
     must('lord-frame').dataset.portrait = 'empty';
   });
   if (portrait.complete) markPortrait();
-  show(present(publicView(game)));
+  const first = present(publicView(game));
+  first.dawnLine = 'Hand 1';
+  show(first);
 }
 
 boot();

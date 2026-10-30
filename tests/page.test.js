@@ -29,14 +29,17 @@ test('index.html has the parlor controls and no remote assets', () => {
   assert.equal(/insurance/i.test(html), false);
 });
 
-test('the night sits outside the parlor and the cup sits in the room', () => {
+test('the night sits outside the parlor and the vial sits in the frame', () => {
   const html = fs.readFileSync('index.html', 'utf8');
   const css = fs.readFileSync('src/style.css', 'utf8');
-  const manor = html.slice(html.indexOf('id="manor"'), html.indexOf('id="ledger"'));
-  assert.equal(manor.includes('id="door"'), true, 'the door is not in the stone');
+  const manor = html.slice(html.indexOf('id="manor"'), html.indexOf('id="vignette"'));
   assert.equal(manor.includes('id="vial"'), true);
   assert.equal(manor.includes('id="blood"'), true, 'the blood count is not with the vial');
+  assert.equal(manor.includes('id="ledger"'), true, 'the result line is outside the table');
   assert.equal(manor.indexOf('id="vial"') < manor.indexOf('id="blood"'), true);
+  assert.equal(manor.indexOf('id="frame-top"') < manor.indexOf('id="topline"'), true);
+  assert.equal(manor.includes('id="door"'), false, 'the empty door gauge is back');
+  assert.equal(css.includes('#door'), false);
   assert.match(css, /body\s*\{[^}]*background:\s*#050203/);
   assert.match(css, /#14080c/);
 });
@@ -55,14 +58,10 @@ test('stylesheet keeps the locked palette and no external urls', () => {
   assert.match(css, /data-candles/);
 });
 
-test('the parlor draws in and the door tells the plot', () => {
+test('the parlor draws in as blood drains', () => {
   const css = fs.readFileSync('src/style.css', 'utf8');
   assert.match(css, /body\[data-room="hungry"\] #manor \{[^}]*padding-left: 48px/);
   assert.match(css, /body\[data-room="close"\] #manor \{[^}]*padding-left: 32px/);
-  assert.match(css, /body\[data-room="hungry"\] #door \{[^}]*width: 8px/);
-  assert.match(css, /body\[data-room="close"\] #door \{[^}]*width: 3px/);
-  assert.match(css, /body\[data-room="cellar"\] #door \{[^}]*#9b2331/);
-  assert.match(css, /body\[data-room="departure"\] #door \{[^}]*left: 28px/);
   assert.equal(css.includes('#manor::after'), false);
 });
 
@@ -130,4 +129,33 @@ test('the favicon exists and the page points at it', () => {
   assert.equal(fs.existsSync('assets/favicon.svg'), true);
   assert.equal(fs.existsSync('favicon.ico'), true);
   assert.equal(fs.existsSync('assets/og.jpg'), true);
+});
+
+test('fonts are self-hosted subsets with their licenses, and nothing comes from a CDN', () => {
+  const css = fs.readFileSync('src/fonts.css', 'utf8');
+  assert.equal(/https?:|googleapis|gstatic/.test(css), false);
+  const faces = css.match(/@font-face/g) || [];
+  assert.equal(faces.length, 6);
+  assert.equal((css.match(/font-display: swap/g) || []).length, 6);
+  for (const [, file] of css.matchAll(/url\("\.\.\/(assets\/fonts\/[^"]+)"\)/g)) {
+    assert.equal(fs.existsSync(file), true, file);
+    assert.equal(fs.statSync(file).size < 30000, true, `${file} is not a subset`);
+  }
+  for (const license of ['OFL-CormorantGaramond.txt', 'OFL-IBMPlexMono.txt']) {
+    assert.match(fs.readFileSync(`assets/fonts/${license}`, 'utf8'), /SIL OPEN FONT LICENSE Version 1\.1/i);
+  }
+  const style = fs.readFileSync('src/style.css', 'utf8');
+  assert.match(style, /Cormorant Garamond/);
+  assert.match(style, /IBM Plex Mono/);
+});
+
+test('the title folds into the frame and a slim line says where you are', () => {
+  const html = fs.readFileSync('index.html', 'utf8');
+  assert.equal(html.indexOf('id="manor"') < html.indexOf('id="frame-top"'), true);
+  assert.equal(html.indexOf('id="frame-top"') < html.indexOf('id="topline"'), true);
+  for (const id of ['floor-name', 'dawn-left', 'cup', 'mute']) {
+    const at = html.indexOf(`id="${id}"`);
+    assert.equal(at > html.indexOf('id="manor"'), true, id);
+  }
+  assert.equal(html.includes('<header>'), false, 'the outer header is back');
 });

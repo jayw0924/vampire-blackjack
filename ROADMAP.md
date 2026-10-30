@@ -78,6 +78,8 @@ For the first build this shapes visuals, motion and Vesper's lines only. Dialogu
 
 Shipped on branch `vigil-quickwins`: the title constant, the portrait plate (his lines no longer sit on the portrait; candles stand on a ledge), cards that do not overlap the arch, big hand totals, one index per card corner, a 280ms staggered deal-in, a hole-card flip, a staged dealer turn, a blood count tween with Bust and Blackjack stamps, a synthesized card snap and heartbeat, a visible Sound toggle, 390px fixes, a favicon and link-preview tags, keyboard shortcuts (H, S, D, Space), and legible type. A CSS vignette and a generated grain tile carry the tone.
 
+Stage 1b (review fixes): the header is folded into the frame's top edge, the empty door gauge is gone, the vial lives in the frame (vertical at the right on desktop, a compact horizontal vial in the top line on phones), the result line sits under the vial, the Bust and Blackjack seal lands on your cards, hand totals sit beside the cards, cards are 15% larger at 1280, the action bar is sticky on phones, and Cormorant Garamond and IBM Plex Mono are self-hosted (OFL licenses in `assets/fonts/`). The whole table fits 1280x800 without scrolling.
+
 Keyboard: H hit, S stand, D double, Space deals, moves on, or begins another evening. Tapping the felt (or pressing Space) during the dealer's turn skips to the verdict.
 
 Still to come, in order: the run layer, the dawn clock and hunger tax, Bite, relics, three floors with bosses (Steward, Lamia, Vesper), Vesper reactions with memory, more juice, and a localStorage best floor.
