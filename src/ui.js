@@ -8,8 +8,7 @@ import {
 import { bloodLabel, candleStates, present, vialFilled } from './render.js';
 import { RELIC_IDS } from './relics.js';
 import { act as runAct, createRun, isTerminal, runView } from './run.js';
-import { TUNING } from './tuning.js';
-import { BOSS_ORDER } from './bosses.js';
+import { parseStartOptions } from './debug.js';
 import { isMuted, setBlood, setCue, sfx, snap, toggleMute } from './score.js';
 import { TIMING, needsStaging, stageSteps } from './stage.js';
 
@@ -659,36 +658,6 @@ function paint(view, { hold = false, onUse, onPick } = {}) {
 
 let backdropFloor = null;
 
-// Debug and screenshot parameters: ?seed=7&floor=3&blood=30&relics=tithe,lantern&hands=4&quota=30
-function startOptions() {
-  const q = new URLSearchParams(globalThis.location?.search || '');
-  const num = (key) => {
-    const v = q.get(key);
-    return v !== null && /^\d{1,9}$/.test(v) ? Number(v) : null;
-  };
-  const options = { seed: num('seed') ?? (Date.now() >>> 0) };
-  const floor = num('floor');
-  if (floor >= 1 && floor <= BOSS_ORDER.length) options.floor = floor;
-  const blood = num('blood');
-  if (blood !== null && blood >= 0 && blood <= 99) options.blood = blood;
-  if (q.has('relics')) {
-    options.relics = q.get('relics').split(',').filter((id) => RELIC_IDS.includes(id)).slice(0, 6);
-  } else if (floor > 1) {
-    options.relics = [];
-  }
-  const hands = num('hands');
-  const quota = num('quota');
-  if (hands || quota) {
-    const tuning = JSON.parse(JSON.stringify(TUNING));
-    for (const id of BOSS_ORDER) {
-      if (hands) tuning.floors[id].hands = hands;
-      if (quota) tuning.floors[id].quota = quota;
-    }
-    options.tuning = tuning;
-  }
-  return options;
-}
-
 function storage() {
   try {
     return globalThis.localStorage;
@@ -702,13 +671,16 @@ function boot() {
   must('parlor').querySelector('h1').textContent = TITLE;
   must('grain').style.backgroundImage = `url("${grainTile()}")`;
 
-  const store = storage();
+  // Debug parameters are honoured only on a dev host or with ?debug=1, and such a
+  // rehearsal table never touches the saved record.
+  const start = parseStartOptions(globalThis.location?.search, globalThis.location?.hostname, Date.now());
+  const store = start.rehearsal ? null : storage();
   let meta = loadMeta(store);
   const keepMeta = (next) => {
     meta = next;
     saveMeta(store, meta);
   };
-  const options = startOptions();
+  const options = start.options;
   let run = createRun(options);
   let bestAtStart = meta.bestFloor;
   keepMeta(noteFloor(meta, run.floor));

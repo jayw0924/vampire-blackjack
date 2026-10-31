@@ -36,3 +36,12 @@ test('1, 2 and 3 choose a relic while a choice is open', () => {
   assert.equal(keyAction('2', ['deal']), null);
   assert.equal(keyAction(' ', ['pick']), null);
 });
+
+test('+ and - move the stake, only while betting', () => {
+  const betting = ['bet_up', 'bet_down', 'deal', 'withdraw'];
+  assert.equal(keyAction('+', betting), 'bet-up');
+  assert.equal(keyAction('=', betting), 'bet-up');
+  assert.equal(keyAction('-', betting), 'bet-down');
+  assert.equal(keyAction('-', ['bet_up', 'deal']), null);
+  assert.equal(keyAction('+', ['hit', 'stand']), null);
+});

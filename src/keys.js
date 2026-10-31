@@ -1,10 +1,10 @@
 // Keyboard shortcuts: H hit, S stand, D double, B bite, K keep, X burn, M the mirror,
-// 1 2 3 choose a relic, Space deal / next hand / new evening.
-const DIRECT = { h: 'hit', s: 'stand', d: 'double', b: 'bite', k: 'keep', x: 'burn', m: 'peek' };
+// 1 2 3 choose a relic, + and - raise and lower the stake, Space deal / next hand / new evening.
+const DIRECT = { h: 'hit', s: 'stand', d: 'double', b: 'bite', k: 'keep', x: 'burn', m: 'peek', '+': 'bet_up', '=': 'bet_up', '-': 'bet_down', '_': 'bet_down' };
 const ID = {
   hit: 'hit', stand: 'stand', double: 'double', bite: 'bite', keep: 'keep', burn: 'burn',
   peek: 'relic-silver-mirror',
-  deal: 'deal', next_hand: 'continue', new_evening: 'new-evening',
+  bet_up: 'bet-up', bet_down: 'bet-down', deal: 'deal', next_hand: 'continue', new_evening: 'new-evening',
 };
 
 export function keyAction(key, enabled) {

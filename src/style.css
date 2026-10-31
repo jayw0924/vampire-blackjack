@@ -1240,80 +1240,90 @@ body[data-room="cellar"] #vignette {
   #blood .unit { font-size: 0.78rem; }
 }
 
-/* Settings and Sound: text on a laptop, icons on a phone. */
+/* Settings and Sound: the same icon buttons at every width. */
 #settings .ico, #mute .ico { display: none; }
 #mute .cut { display: none; }
 #mute[data-on="false"] .wave { display: none; }
 #mute[data-on="false"] .cut { display: inline; }
-@media (max-width: 640px) {
-  #settings, #mute {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    min-width: 44px;
-    height: 44px;
-    margin: 0;
-    padding: 0;
-    border-color: transparent;
-  }
-  #settings { margin-left: auto; }
-  #settings .ico, #mute .ico { display: block; }
-  #settings .lbl, #mute .lbl { display: none; }
+#settings, #mute {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border-color: transparent;
 }
+#settings { margin-left: auto; }
+#settings + #mute { margin-left: 0; }
+#settings .ico, #mute .ico { display: block; }
+#settings .lbl, #mute .lbl { display: none; }
 
-/* The stake: − [2 drops] + on a phone, Deal first, Leave as a quiet link. */
+/* The stake at every width: − [2 drops] +, Deal first, Leave as a quiet link. */
 #bet-down .sym, #bet-up .sym { display: none; }
 #pending-bet { white-space: nowrap; }
-@media (max-width: 640px) {
-  #betting:not([hidden]) {
-    display: grid;
-    grid-template-columns: 52px 1fr 52px;
-    grid-template-areas: "minus stake plus" "deal deal deal" "leave leave leave";
-    gap: 4px 8px;
-    align-items: center;
-    padding: 8px 10px 2px;
-  }
-  #bet-down { grid-area: minus; }
-  #bet-up { grid-area: plus; }
-  #bet-down, #bet-up { width: 52px; margin: 0; padding: 0; font-size: 1.5rem; }
-  #bet-down .lbl, #bet-up .lbl { display: none; }
-  #bet-down .sym, #bet-up .sym { display: inline; }
-  #pending-bet {
-    grid-area: stake;
-    margin: 0;
-    min-width: 0;
-    color: #f3e6d0;
-    font-size: 1rem;
-    letter-spacing: 0.04em;
-  }
-  #pending-bet .k { display: none; }
-  #betting #deal {
-    grid-area: deal;
-    width: 100%;
-    margin: 0;
-    background: #9b2331;
-    border-color: #c4a574;
-    color: #f3e6d0;
-    font-size: 0.9rem;
-    letter-spacing: 0.28em;
-  }
-  #betting #deal:disabled { background: #3a151c; }
-  #betting #withdraw {
-    grid-area: leave;
-    min-height: 44px;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: #a89080;
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
+#betting:not([hidden]) {
+  display: grid;
+  grid-template-columns: 52px 1fr 52px;
+  grid-template-areas: "minus stake plus" "deal deal deal" "leave leave leave";
+  gap: 4px 8px;
+  align-items: center;
+  padding: 8px 10px 2px;
+}
+#bet-down { grid-area: minus; }
+#bet-up { grid-area: plus; }
+#bet-down, #bet-up { width: 52px; margin: 0; padding: 0; font-size: 1.5rem; }
+#bet-down .lbl, #bet-up .lbl { display: none; }
+#bet-down .sym, #bet-up .sym { display: inline; }
+#pending-bet {
+  grid-area: stake;
+  margin: 0;
+  min-width: 0;
+  color: #f3e6d0;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+#pending-bet .k { display: none; }
+#betting #deal {
+  grid-area: deal;
+  width: 100%;
+  margin: 0;
+  background: #9b2331;
+  border-color: #c4a574;
+  color: #f3e6d0;
+  font-size: 0.9rem;
+  letter-spacing: 0.28em;
+}
+#betting #deal:disabled { background: #3a151c; }
+#betting #withdraw {
+  grid-area: leave;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #a89080;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
+
+/* One stake control at every width. */
+#betting:not([hidden]) {
+  box-sizing: border-box;
+  width: min(100%, 380px);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 8px 12px 4px;
+}
+#betting #bet-down, #betting #bet-up { min-height: 44px; }
+#betting #deal { min-height: 46px; }
+#betting #withdraw { min-height: 36px; }
+#betting #deal .key { margin-left: 10px; letter-spacing: 0.05em; }
 /* Relics on a short arc that follows the felt's corner (laptop). */
 @media (min-width: 900px) {
   #relics {

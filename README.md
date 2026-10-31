@@ -16,7 +16,7 @@ The table is a felt oval in a stone parlor. Art is local, listed in `assets/art/
 
 ## Keys
 
-H hit, S stand, D double, B bite, K keep, X burn, M the Silver Mirror, 1 2 3 choose a relic. Space deals, moves to the next hand, or begins another evening.
+H hit, S stand, D double, B bite, K keep, X burn, M the Silver Mirror, 1 2 3 choose a relic, + and - raise and lower the stake. Space deals, moves to the next hand, or begins another evening.
 
 ## Run
 
@@ -33,4 +33,4 @@ node --test
 node tools/sim.mjs          # balance simulation: win rates per floor
 ```
 
-For a repeatable table, add URL parameters: `?seed=7&floor=3&blood=44&relics=tithe,lantern&hands=4&quota=30`.
+For a repeatable table, `?seed=7` works anywhere. The other parameters (floor, blood, relics, hands, quota) are debug-only: they work on localhost or with `?debug=1`, and such a rehearsal table never reads or writes the saved record. Example: `?seed=7&floor=3&blood=44&relics=tithe,lantern&hands=4&quota=30`.

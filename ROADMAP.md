@@ -93,7 +93,7 @@ Shipped on branch `vigil-run`, stacked on `vigil-quickwins`.
 - Six relics with hooks `onDeal`, `onBite`, `onBust`, `onWin` (plus `onLoss`, `onFloorStart`, `onRules`): Charon's Obol, Silver Mirror, Lamia's Tooth, Hecate's Key, The Tithe, The Lantern. Relic choices are seeded.
 - Three bosses as data in `src/bosses.js`: lines per event, a short event log in the run (streaks, doubles, busts at low blood, Bite habit, the mirror) that picks his memory lines.
 - `src/meta.js` keeps the deepest floor and escapes in the browser's local store (settings has a two-step "Forget my record"). `src/art.js` loads the Forge art through the manifest; anything the manifest lacks stays a CSS placeholder.
-- Debug and screenshot parameters on the URL: `?seed=7&floor=3&blood=44&relics=tithe,lantern&hands=4&quota=30`.
+- Debug and screenshot parameters on the URL (`src/debug.js`; overrides need localhost or `?debug=1`, and never touch the saved record; `?seed=` works anywhere): `?seed=7&floor=3&blood=44&relics=tithe,lantern&hands=4&quota=30`.
 
 Balance: run `node tools/sim.mjs` (`--runs 800` for a quick pass, `--json` for data). The shipped numbers and win rates are in the Stage 2 report; change `src/tuning.js`, rerun the sim, and `tests/sim.test.js` checks the result stays in a fair band.
 
