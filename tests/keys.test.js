@@ -19,3 +19,20 @@ test('Space deals, moves on, or begins another evening', () => {
   assert.equal(keyAction(' ', []), null);
   assert.equal(keyAction('x', ['deal']), null);
 });
+
+test('B bites, K keeps, X burns, M uses the mirror, but only when each is legal', () => {
+  assert.equal(keyAction('b', ['hit', 'stand', 'bite']), 'bite');
+  assert.equal(keyAction('b', ['hit', 'stand']), null);
+  assert.equal(keyAction('k', ['keep', 'burn']), 'keep');
+  assert.equal(keyAction('x', ['keep', 'burn']), 'burn');
+  assert.equal(keyAction('k', ['hit']), null);
+  assert.equal(keyAction('m', ['hit', 'stand', 'peek']), 'relic-silver-mirror');
+  assert.equal(keyAction('m', ['hit', 'stand']), null);
+});
+
+test('1, 2 and 3 choose a relic while a choice is open', () => {
+  assert.equal(keyAction('1', ['pick']), 'pick-0');
+  assert.equal(keyAction('3', ['pick']), 'pick-2');
+  assert.equal(keyAction('2', ['deal']), null);
+  assert.equal(keyAction(' ', ['pick']), null);
+});

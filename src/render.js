@@ -28,9 +28,10 @@ export function stakeDrops(bet) {
   return Math.max(0, Math.floor(Number(bet) / 2) || 0);
 }
 
-export function vialFilled(blood) {
+// Ten ticks. The vial is scaled to the floor's quota, so a full vial is a cleared floor.
+export function vialFilled(blood, quota = 40) {
   if (!blood || blood <= 0) return 0;
-  return Math.min(10, Math.ceil(blood / 4));
+  return Math.min(10, Math.ceil((blood * 10) / quota));
 }
 
 function dealerValueLabel(view) {
@@ -71,6 +72,38 @@ function stampFor(messageKey) {
   return '';
 }
 
+export function dawnLabel(handsLeft) {
+  if (handsLeft <= 0) return 'Dawn';
+  if (handsLeft === 1) return 'Last hand before dawn';
+  return `${handsLeft} hands until dawn`;
+}
+
+// Pieces that exist only inside a run (see runView in run.js).
+function runFields(view) {
+  const run = view.run;
+  if (!run) return {};
+  return {
+    floorName: run.boss.floorName,
+    plateName: run.boss.plate,
+    ruleText: run.boss.ruleText,
+    bossId: run.boss.id,
+    mood: run.mood,
+    dawnLine: dawnLabel(run.handsLeft),
+    candlesTotal: run.handsTotal,
+    candlesLit: run.candlesLit,
+    quota: run.quota,
+    quotaLabel: `Quota ${run.quota}`,
+    vialFilled: vialFilled(view.blood, run.quota),
+    relics: run.relics,
+    choices: run.choices,
+    pick: run.status === 'pick',
+    pickFor: run.pickFor,
+    floor: run.floor,
+    reached: run.reached,
+    status: run.status,
+  };
+}
+
 export function present(view) {
   return {
     message: view.message,
@@ -83,18 +116,26 @@ export function present(view) {
     lowBlood: view.lowBlood,
     showBetting: view.phase === 'betting',
     showActions: view.phase === 'player',
+    showBite: view.phase === 'bite',
     showNextHand: view.phase === 'settled',
     showNewEvening: view.phase === 'over',
     enabled: view.actions.slice(),
     dealerCards: view.dealerCards.map(displayCard),
     dealerValueLabel: dealerValueLabel(view),
+    holeKnown: Boolean(view.holeKnown),
+    standOn: view.rules ? view.rules.dealerStandOn : 17,
+    hitCost: view.rules ? view.rules.hitCost : 0,
+    biteCost: view.rules ? view.rules.biteCost : 2,
+    biteCard: view.pendingBite ? displayCard(view.pendingBite) : null,
+    burned: (view.burned || []).map(displayCard),
     playerHands: view.playerHands.map((hand, index) => ({
       cards: hand.cards.map(displayCard),
       valueLabel: String(handValue(hand.cards)),
       active: view.phase === 'player' && index === view.activeHand,
       outcomeLabel: view.lastResult ? outcomeLabel(view.lastResult.hands[index], hand.busted) : '',
     })),
-    ledger: view.lastResult ? ledgerLabel(view.lastResult.net) : '',
+    ledger: view.ledger !== undefined ? view.ledger : view.lastResult ? ledgerLabel(view.lastResult.net) : '',
+    ledgerItems: view.ledgerItems || [],
     room: view.room,
     roomLine: view.roomLine || '',
     cue: view.cue,
@@ -103,5 +144,6 @@ export function present(view) {
     stakeDrops: stakeDrops(view.pendingBet),
     vialFilled: vialFilled(view.blood),
     candleCount: candleCount(view.room),
+    ...runFields(view),
   };
 }

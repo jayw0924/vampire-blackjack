@@ -120,3 +120,37 @@ function apply() {
   osc.frequency.setTargetAtTime(tone.freq, now, 0.45);
   gain.gain.setTargetAtTime(muted ? 0 : tone.gain, now, 0.35);
 }
+
+// Short synthesized effects for the run layer. Silent while muted.
+function tone(at, freq, len, level, type = 'sine', slide = 1) {
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(freq, at);
+  o.frequency.exponentialRampToValueAtTime(Math.max(20, freq * slide), at + len);
+  g.gain.setValueAtTime(0.0001, at);
+  g.gain.exponentialRampToValueAtTime(level, at + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, at + len);
+  o.connect(g);
+  g.connect(ctx.destination);
+  o.start(at);
+  o.stop(at + len + 0.05);
+}
+
+export const SFX = {
+  bite: [(t) => tone(t, 190, 0.22, 0.18, 'sawtooth', 0.4), (t) => thump(t, 70, 0.2)],
+  burn: [(t) => tone(t, 900, 0.34, 0.05, 'triangle', 0.3)],
+  relic: [(t) => tone(t, 660, 0.4, 0.09), (t) => tone(t + 0.09, 990, 0.5, 0.06)],
+  pick: [(t) => tone(t, 440, 0.3, 0.09), (t) => tone(t + 0.12, 587, 0.45, 0.08)],
+  descend: [(t) => tone(t, 196, 0.7, 0.12, 'triangle', 0.5), (t) => thump(t, 55, 0.2)],
+  dawn: [(t) => tone(t, 330, 1.3, 0.1, 'sine', 2), (t) => tone(t + 0.1, 495, 1.2, 0.07, 'sine', 2)],
+  drained: [(t) => tone(t, 98, 1.1, 0.14, 'sine', 0.5), (t) => thump(t, 48, 0.2)],
+  won: [(t) => tone(t, 392, 0.6, 0.1), (t) => tone(t + 0.18, 523, 0.7, 0.09), (t) => tone(t + 0.36, 784, 0.9, 0.08)],
+  snuff: [(t) => tone(t, 1400, 0.18, 0.03, 'triangle', 0.4)],
+};
+
+export function sfx(name, delayMs = 0) {
+  if (muted || !ctx || !SFX[name]) return;
+  const at = ctx.currentTime + delayMs / 1000;
+  for (const play of SFX[name]) play(at);
+}

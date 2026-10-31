@@ -3,13 +3,37 @@ import { cueFor, remarkFor, roomFor, roomLine, storyFor } from './atmosphere.js'
 import { lineFor } from './lines.js';
 import { RULES, canSplitCards, outcomeFor, stakeReturned } from './rules.js';
 
+// Table rules a floor can change. The defaults are the original single evening.
+// A run layer passes overrides; the blackjack rules themselves do not move.
+export const CORE_RULES = {
+  dealerStandOn: 17, // the dealer draws below this total
+  holeUp: false, // true: both dealer cards are face up
+  hitCost: 0, // blood paid for each Hit
+  biteEnabled: false,
+  biteCost: 2,
+  maxHands: 2, // 2 = split once; 3 = one resplit
+  autoEnd: true, // false: the evening never ends by itself (a run decides)
+  satedAt: RULES.satedAt, // null: no blood target ends the evening
+  startBlood: RULES.startingBlood,
+};
+
+export function withRules(game, patch) {
+  return { ...game, rules: { ...game.rules, ...patch } };
+}
+
 function baseState(fields) {
   return {
+    rules: fields.rules,
+    biteUsed: false,
+    pendingBite: null,
+    burned: [],
+    peeked: false,
+    peekReady: false,
     seed: fields.seed,
     rngState: fields.rngState,
     shoeInjected: fields.shoeInjected,
     shoe: fields.shoe,
-    blood: RULES.startingBlood,
+    blood: fields.rules.startBlood,
     phase: 'betting',
     pendingBet: RULES.minBet,
     playerHands: [],
@@ -23,10 +47,12 @@ function baseState(fields) {
   };
 }
 
-export function createGame({ seed = 1, shoe = null } = {}) {
+export function createGame({ seed = 1, shoe = null, rules = {} } = {}) {
   const rngState = seed >>> 0;
+  const merged = { ...CORE_RULES, ...rules };
   if (shoe) {
     return baseState({
+      rules: merged,
       seed: rngState,
       rngState,
       shoeInjected: true,
@@ -35,6 +61,7 @@ export function createGame({ seed = 1, shoe = null } = {}) {
   }
   const shuffled = shuffle(freshShoe(), rngState);
   return baseState({
+    rules: merged,
     seed: rngState,
     rngState: shuffled.rngState,
     shoeInjected: false,
@@ -52,20 +79,27 @@ export function legalActions(game) {
     actions.push('withdraw');
     return actions;
   }
+  if (game.phase === 'bite') return ['keep', 'burn'];
   if (game.phase === 'player') {
     const hand = game.playerHands[game.activeHand];
     const actions = [];
-    if (!hand.stood && !hand.busted) actions.push('hit', 'stand');
+    const open = !hand.stood && !hand.busted;
+    if (open && game.blood >= game.rules.hitCost) actions.push('hit');
+    if (open) actions.push('stand');
     const opening = hand.cards.length === 2;
     if (opening && !hand.fromSplit && game.blood >= hand.bet) actions.push('double');
     if (
-      game.playerHands.length === 1 &&
+      game.playerHands.length < game.rules.maxHands &&
       opening &&
       canSplitCards(hand.cards[0], hand.cards[1]) &&
       game.blood >= hand.bet
     ) {
       actions.push('split');
     }
+    if (open && game.rules.biteEnabled && !game.biteUsed && game.blood >= game.rules.biteCost) {
+      actions.push('bite');
+    }
+    if (game.peekReady && !game.peeked && !game.rules.holeUp) actions.push('peek');
     return actions;
   }
   if (game.phase === 'settled') return ['next_hand'];
@@ -134,7 +168,9 @@ function settle(game) {
   let phase = 'settled';
   let evening = null;
   let messageKey = chooseMessage(game.playerHands, results, game.dealerCards, net);
-  if (blood >= RULES.satedAt) {
+  if (!game.rules.autoEnd) {
+    // a run layer decides when the evening ends
+  } else if (game.rules.satedAt !== null && blood >= game.rules.satedAt) {
     phase = 'over';
     evening = 'sated';
     messageKey = 'sated';
@@ -172,6 +208,11 @@ export function nextHand(game) {
     dealerCards: [],
     activeHand: 0,
     lastResult: null,
+    biteUsed: false,
+    pendingBite: null,
+    burned: [],
+    peeked: false,
+    peekReady: false,
     messageKey: low ? 'low_blood' : 'betting',
     freshHeart: low && !beats.heartTold,
     beats: { ...beats, arrived: true, heartTold: beats.heartTold || low },
@@ -184,7 +225,8 @@ export function newEvening(game) {
 }
 
 export function publicView(game) {
-  const hideHole = game.phase === 'player';
+  const inHand = game.phase === 'player' || game.phase === 'bite';
+  const hideHole = inHand && !game.rules.holeUp && !game.peeked;
   const dealerCards = hideHole
     ? [{ rank: game.dealerCards[0].rank, suit: game.dealerCards[0].suit }, { hidden: true }]
     : game.dealerCards.map((c) => ({ rank: c.rank, suit: c.suit }));
@@ -215,6 +257,18 @@ export function publicView(game) {
     }),
     remark: remarkFor(game),
     story: storyFor(game),
+    holeKnown: game.rules.holeUp || game.peeked,
+    pendingBite: game.pendingBite
+      ? { rank: game.pendingBite.card.rank, suit: game.pendingBite.card.suit, cost: game.pendingBite.cost }
+      : null,
+    burned: game.burned.map((c) => ({ rank: c.rank, suit: c.suit })),
+    rules: {
+      holeUp: game.rules.holeUp,
+      dealerStandOn: game.rules.dealerStandOn,
+      hitCost: game.rules.hitCost,
+      biteEnabled: game.rules.biteEnabled,
+      biteCost: game.rules.biteCost,
+    },
   };
 }
 
@@ -231,6 +285,10 @@ export function deal(game) {
     ...ready,
     freshHeart: false,
     beats: { arrived: true, heartTold: Boolean(ready.beats?.heartTold) },
+    biteUsed: false,
+    pendingBite: null,
+    burned: [],
+    peeked: false,
   };
   let shoe = marked.shoe;
   const p1 = drawOne(shoe); shoe = p1.shoe;
@@ -270,7 +328,7 @@ function resolveDealer(game) {
   let shoe = game.shoe;
   let dealerCards = game.dealerCards.map((c) => ({ rank: c.rank, suit: c.suit }));
   if (game.playerHands.some((hand) => !hand.busted)) {
-    while (handValue(dealerCards) < 17) {
+    while (handValue(dealerCards) < game.rules.dealerStandOn) {
       const drawn = drawOne(shoe);
       shoe = drawn.shoe;
       dealerCards = dealerCards.concat(drawn.drawn);
@@ -288,7 +346,61 @@ export function hit(game) {
   const value = handValue(hand.cards);
   hand.busted = value > 21;
   hand.stood = hand.busted || value >= 21;
-  return advance({ ...game, shoe: drawn.shoe, playerHands: hands });
+  return advance({
+    ...game,
+    shoe: drawn.shoe,
+    blood: game.blood - game.rules.hitCost,
+    playerHands: hands,
+  });
+}
+
+// Bite: pay blood, draw one card, then keep it (it joins the hand) or burn it
+// (it is shown face up and leaves the shoe). Once per hand.
+export function bite(game) {
+  assertAction(game, 'bite');
+  const drawn = drawOne(game.shoe);
+  const cost = game.rules.biteCost;
+  return {
+    ...game,
+    shoe: drawn.shoe,
+    blood: game.blood - cost,
+    biteUsed: true,
+    pendingBite: { card: drawn.drawn, cost },
+    phase: 'bite',
+    messageKey: 'bite',
+  };
+}
+
+export function keep(game) {
+  assertAction(game, 'keep');
+  const hands = game.playerHands.map((hand) => ({ ...hand, cards: hand.cards.slice() }));
+  const hand = hands[game.activeHand];
+  hand.cards = hand.cards.concat(game.pendingBite.card);
+  const value = handValue(hand.cards);
+  hand.busted = value > 21;
+  hand.stood = hand.busted || value >= 21;
+  return advance({ ...game, playerHands: hands, pendingBite: null });
+}
+
+export function burn(game) {
+  assertAction(game, 'burn');
+  return {
+    ...game,
+    burned: game.burned.concat(game.pendingBite.card),
+    pendingBite: null,
+    phase: 'player',
+    messageKey: 'burned',
+  };
+}
+
+// An item (the Silver Mirror) arms a one-time look at the hole card.
+export function arm(game) {
+  return { ...game, peekReady: true };
+}
+
+export function peek(game) {
+  assertAction(game, 'peek');
+  return { ...game, peeked: true, peekReady: false, messageKey: 'peeked' };
 }
 
 export function stand(game) {
@@ -318,24 +430,27 @@ export function doubleDown(game) {
 
 export function split(game) {
   assertAction(game, 'split');
-  const original = game.playerHands[0];
+  const at = game.activeHand;
+  const original = game.playerHands[at];
   const aces = original.cards[0].rank === 'A';
   let shoe = game.shoe;
   const n1 = drawOne(shoe); shoe = n1.shoe;
   const n2 = drawOne(shoe); shoe = n2.shoe;
   const extra = { fromSplit: true, splitAces: aces, stood: aces };
-  const hands = [
+  const pair = [
     makeHand([original.cards[0], n1.drawn], original.bet, extra),
     makeHand([original.cards[1], n2.drawn], original.bet, extra),
   ];
+  const hands = game.playerHands.slice(0, at).concat(pair, game.playerHands.slice(at + 1));
   const next = {
     ...game,
     shoe,
     blood: game.blood - original.bet,
     playerHands: hands,
-    activeHand: 0,
+    activeHand: at,
   };
-  if (hands[0].stood && hands[1].stood) return resolveDealer(next);
-  if (hands[0].stood) return { ...next, activeHand: 1, phase: 'player', messageKey: 'player_turn' };
-  return { ...next, phase: 'player', messageKey: 'player_turn' };
+  if (!pair[0].stood && !pair[0].busted) {
+    return { ...next, phase: 'player', messageKey: 'player_turn' };
+  }
+  return advance(next);
 }

@@ -221,10 +221,13 @@ test('the public view hides the hole card and omits the shoe', () => {
   assert.equal(dealt.phase, 'player');
   const view = publicView(dealt);
   assert.deepEqual(Object.keys(view).sort(), [
-    'actions', 'activeHand', 'blood', 'cue', 'dealerCards', 'evening', 'lastResult',
-    'lowBlood', 'message', 'messageKey', 'pendingBet', 'phase', 'playerHands',
-    'remark', 'room', 'roomLine', 'story',
+    'actions', 'activeHand', 'blood', 'burned', 'cue', 'dealerCards', 'evening',
+    'holeKnown', 'lastResult', 'lowBlood', 'message', 'messageKey', 'pendingBet',
+    'pendingBite', 'phase', 'playerHands', 'remark', 'room', 'roomLine', 'rules', 'story',
   ]);
+  assert.equal(view.holeKnown, false);
+  assert.equal(view.pendingBite, null);
+  assert.deepEqual(view.burned, []);
   assert.equal(view.dealerCards[1].hidden, true);
   assert.equal('rank' in view.dealerCards[1], false);
   assert.equal(JSON.stringify(view).includes('"rank":"3"'), false);

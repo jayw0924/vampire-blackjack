@@ -20,7 +20,7 @@ export const STAGE_LINES = {
 
 export function needsStaging(prevPhase, view) {
   if (view.phase !== 'settled' && view.phase !== 'over') return false;
-  if (prevPhase !== 'betting' && prevPhase !== 'player') return false;
+  if (prevPhase !== 'betting' && prevPhase !== 'player' && prevPhase !== 'bite') return false;
   return view.dealerCards.length >= 2 && !view.dealerCards.some((c) => c.hidden);
 }
 
@@ -37,21 +37,25 @@ function totalLabel(view, count) {
 // Everything the table shows before the verdict: the player's cards as they
 // are, the dealer's up card and a face-down hole card, the old room, no result.
 export function interimView(view, before) {
-  const keep = ['room', 'roomLine', 'candleCount', 'cue', 'lowBlood'];
+  const keep = ['room', 'roomLine', 'candleCount', 'cue', 'lowBlood', 'candlesLit', 'dawnLine', 'floor', 'floorName', 'bossId', 'plateName', 'mood', 'ruleText', 'quota', 'quotaLabel'];
   const atmosphere = {};
   if (before) for (const key of keep) atmosphere[key] = before[key];
   return {
     ...view,
     ...atmosphere,
-    dealerCards: [view.dealerCards[0], hiddenHole()],
-    dealerValueLabel: '',
-    dealerTotals: [],
-    message: STAGE_LINES.turn,
+    // A face-up hole card (Lamia's table, or a look in the Silver Mirror) stays up.
+    dealerCards: view.holeKnown ? view.dealerCards.slice(0, 2) : [view.dealerCards[0], hiddenHole()],
+    dealerValueLabel: view.holeKnown ? totalLabel(view, 2) : '',
+    dealerTotals: view.holeKnown ? view.dealerTotals.slice(0, 2) : [],
+    message: view.holeKnown ? STAGE_LINES.hold : STAGE_LINES.turn,
     remark: '',
     story: '',
     ledger: '',
+    ledgerItems: [],
     stamp: '',
     showBetting: false,
+    showBite: false,
+    pick: false,
     showActions: false,
     showNextHand: false,
     showNewEvening: false,
@@ -63,7 +67,7 @@ export function interimView(view, before) {
 function lineAfter(view, n) {
   if (view.dealerTotals[n - 1] > 21) return STAGE_LINES.bust;
   if (n < view.dealerCards.length) return STAGE_LINES.draw;
-  return view.dealerTotals[n - 1] < 17 ? STAGE_LINES.idle : STAGE_LINES.hold;
+  return view.dealerTotals[n - 1] < (view.standOn ?? 17) ? STAGE_LINES.idle : STAGE_LINES.hold;
 }
 
 function shown(view, before, count, message) {

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { present } from '../src/render.js';
+import { present, vialFilled } from '../src/render.js';
 import { createGame, deal, publicView } from '../src/game.js';
 import { cards } from './helpers.js';
 
@@ -70,4 +70,35 @@ test('a settled hand reports running dealer totals and the stamp', () => {
   assert.equal(shown.stamp, 'Blackjack');
   assert.deepEqual(shown.dealerTotals, [6, 11]);
   assert.equal(shown.dealerValueLabel, '11');
+});
+
+import { dawnLabel } from '../src/render.js';
+import { createRun, runView } from '../src/run.js';
+
+test('the vial is scaled to the floor quota', () => {
+  assert.equal(vialFilled(20), 5);
+  assert.equal(vialFilled(24, 24), 10);
+  assert.equal(vialFilled(12, 24), 5);
+  assert.equal(vialFilled(48, 48), 10);
+  assert.equal(vialFilled(0, 24), 0);
+});
+
+test('the dawn line counts hands in plain words', () => {
+  assert.equal(dawnLabel(12), '12 hands until dawn');
+  assert.equal(dawnLabel(1), 'Last hand before dawn');
+  assert.equal(dawnLabel(0), 'Dawn');
+});
+
+test('present carries the run: floor, quota, candles, relics and the choice', () => {
+  const view = present(runView(createRun({ seed: 4 })));
+  assert.equal(view.floorName, 'Floor I · The Steward');
+  assert.equal(view.quotaLabel, 'Quota 24');
+  assert.equal(view.candlesTotal, view.candlesLit);
+  assert.equal(view.pick, true);
+  assert.equal(view.choices.length, 3);
+  const playing = present(runView(createRun({ seed: 4, relics: ['lantern'] })));
+  assert.equal(playing.pick, false);
+  assert.equal(playing.relics.length, 1);
+  assert.equal(playing.dawnLine, '13 hands until dawn');
+  assert.equal(playing.showNextHand, false);
 });

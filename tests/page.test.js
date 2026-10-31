@@ -12,13 +12,15 @@ test('index.html has the parlor controls and no remote assets', () => {
     'actions', 'between', 'room', 'remark', 'story', 'mute',
     'manor', 'candles', 'lord', 'lord-frame', 'felt', 'stake', 'vial',
     'plate', 'stamp', 'vignette', 'grain',
+    'bar', 'relics', 'relic-tip', 'pick', 'pick-choices', 'bite', 'keep', 'burn',
+    'quota', 'rule', 'hint', 'record', 'settings', 'settings-panel', 'forget', 'backdrop',
   ]) {
     assert.equal(html.includes(`id="${id}"`), true, `missing #${id}`);
   }
   assert.equal(html.includes(`<title>${TITLE}</title>`), true);
   assert.match(html, /src\/ui\.js/);
   assert.match(html, /src\/style\.css/);
-  assert.match(html, /assets\/lord\.png/);
+  assert.match(html, /assets\/lord\.webp/);
   // Nothing loads from elsewhere. Absolute URLs may only appear as link-preview
   // metadata (og:url, og:image, twitter:image), which the page itself never fetches.
   assert.equal(html.includes('http://'), false);
@@ -85,7 +87,7 @@ test('the table has weight and the arch is a recess', () => {
 
 test('ui.js never reads the raw hole card', () => {
   const src = fs.readFileSync('src/ui.js', 'utf8');
-  assert.equal(src.includes('publicView'), true);
+  assert.equal(src.includes('runView'), true, 'the page reads the run view, which wraps publicView');
   assert.equal(src.includes('game.dealerCards'), false);
   assert.equal(src.includes('innerHTML'), false);
   assert.equal(src.includes('insertAdjacentHTML'), false);
@@ -158,4 +160,42 @@ test('the title folds into the frame and a slim line says where you are', () => 
     assert.equal(at > html.indexOf('id="manor"'), true, id);
   }
   assert.equal(html.includes('<header>'), false, 'the outer header is back');
+});
+
+test('relic tokens are 48px, six fit, and their shadows live in CSS', () => {
+  const css = fs.readFileSync('src/style.css', 'utf8');
+  assert.match(css, /\.relic \{[^}]*width: 48px;[^}]*height: 48px;/);
+  assert.match(css, /#relics \{[^}]*grid-template-columns: repeat\(3, 48px\)/);
+  assert.match(css, /\.relic img \{[^}]*drop-shadow/);
+  assert.match(css, /\.relic:hover/);
+  const html = fs.readFileSync('index.html', 'utf8');
+  assert.match(html, /id="relic-tip" role="tooltip"/);
+  assert.match(html, /id="pick" role="dialog"/);
+});
+
+test('on a phone the relics sit in one row above the action bar', () => {
+  const css = fs.readFileSync('src/style.css', 'utf8');
+  const phone = css.slice(css.indexOf('/* ======== the run'));
+  assert.match(phone, /#relics \{[^}]*position: static;[^}]*flex-wrap: nowrap;/);
+  assert.match(phone, /#bar \{[^}]*position: sticky;/);
+  const html = fs.readFileSync('index.html', 'utf8');
+  assert.equal(html.indexOf('id="relics"') < html.indexOf('id="controls"'), true);
+});
+
+test('art is always loaded through the manifest and every picture has a stated alt', () => {
+  const src = fs.readFileSync('src/ui.js', 'utf8');
+  assert.equal(src.includes('loadArt'), true);
+  assert.equal(/assets\/art\//.test(src), false, 'file names live in the manifest, not in ui.js');
+  assert.equal(src.includes("img.alt = ''"), true);
+  const html = fs.readFileSync('index.html', 'utf8');
+  assert.match(html, /<img id="lord-portrait"[^>]*alt=""/);
+  assert.equal(html.includes('lord.png'), false, 'the 1.8MB portrait is no longer loaded');
+});
+
+test('the run layer has no random numbers of its own', () => {
+  for (const file of ['run', 'relics', 'bosses', 'meta', 'art']) {
+    const src = fs.readFileSync(`src/${file}.js`, 'utf8');
+    assert.equal(src.includes('Math.random'), false, file);
+    assert.equal(src.includes('Date.now'), false, file);
+  }
 });
