@@ -78,18 +78,27 @@ export function bestLabel(meta) {
   return meta.escapes > 0 ? `${deep} · Escaped ×${meta.escapes}` : deep;
 }
 
-// One-time hints in Vesper's voice, for a first run. Returns { id, text } or null.
+// One-time hints. On Floor I the Steward speaks them, in his own voice. After Floor I
+// the house text is neutral: the later bosses do not explain themselves.
 export const HINTS = {
-  welcome: (run) => `Reach ${run.quota} drops before the last candle gutters, and the stair opens. Fall short, and dawn comes for you.`,
-  hunger: () => 'Every hand costs you a drop. Hunger is the house\'s oldest dealer.',
-  bite: () => 'You may Bite: pay two drops, draw one more card. Keep it, or burn it.',
-  relic: () => 'The tokens on the rim answer to you. Press and hold one to read it; tap to use it.',
+  welcome: (run) => `Good evening. Bring the house ${run.quota} drops before the last candle gutters, and I shall open the stair. Fall short, and dawn will see you out.`,
+  hunger: () => 'Every hand costs you a drop, I am afraid. The house does not feed its guests.',
+  bite: () => 'Should you wish it, you may Bite: pay one drop and draw one more card. Keep it, or burn it.',
+  relic: () => 'Those tokens on the rim are yours now. Press and hold one to read it; tap to use it.',
+  floor2: () => 'House rule, Floor II: the dealer plays face up, and every Hit costs a drop.',
+  floor3: () => 'House rule, Floor III: ties go to the house. A push counts as a loss.',
 };
 
 export function hintFor(run, view, seen) {
-  if (run.status !== 'playing' || run.floor !== 1) return null;
+  if (run.status !== 'playing') return null;
   const phase = view.phase;
   const want = [];
+  if (run.floor === 2 && phase === 'betting' && run.handsPlayed === 0) want.push('floor2');
+  if (run.floor === 3 && phase === 'betting' && run.handsPlayed === 0) want.push('floor3');
+  if (run.floor !== 1) {
+    const id = want.find((h) => !seen.includes(h));
+    return id ? { id, text: HINTS[id](run) } : null;
+  }
   if (phase === 'betting' && run.handsPlayed === 0) want.push('welcome');
   if (phase === 'betting' && run.handsPlayed >= 1) want.push('hunger');
   if (phase === 'player' && run.handsPlayed >= 1 && view.enabled.includes('bite')) want.push('bite');

@@ -92,3 +92,44 @@ test('a second split needs the room for it', () => {
   let game = table(pair, { maxHands: 3 });
   assert.equal(legalActions(game).includes('split'), true);
 });
+
+import { TUNING } from '../src/tuning.js';
+
+test('ties go to the house where the rule says so, and only there', () => {
+  // you 10+9 = 19, dealer 10+9 = 19
+  const shoe = ['10S', '10H', '9D', '9C'];
+  const plain = stand(deal(createGame({ shoe: cards(...shoe), rules: { autoEnd: false } })));
+  assert.equal(plain.lastResult.hands[0].outcome, 'push');
+  assert.equal(plain.lastResult.net, 0);
+  const house = stand(table(shoe, { tiesToHouse: true }));
+  const hand = house.lastResult.hands[0];
+  assert.equal(hand.outcome, 'loss');
+  assert.equal(hand.tie, true);
+  assert.equal(house.lastResult.net, -2);
+  assert.equal(house.blood, 18);
+  assert.equal(house.messageKey, 'tie_house');
+  assert.equal(publicView(house).rules.tiesToHouse, true);
+});
+
+test('a win is still a win and a bust is not a tie at the house table', () => {
+  const win = stand(table(['10S', '10H', 'KD', '9C'], { tiesToHouse: true }));
+  assert.equal(win.lastResult.hands[0].outcome, 'win');
+  assert.equal(win.lastResult.hands[0].tie, false);
+  assert.notEqual(win.messageKey, 'tie_house');
+});
+
+test('Bite ships at one drop, because the sim says one drop is where it pays', () => {
+  assert.equal(TUNING.bite.cost, 1);
+  const game = table(['10S', '9H', '5D', '7C', '2S'], { biteCost: TUNING.bite.cost });
+  assert.equal(bite(game).blood, game.blood - 1);
+});
+
+test('a burn can hand back part of the price, never more than was paid', () => {
+  const paid = bite(table(['10S', '9H', '5D', '7C', '2S', '3H'], { burnRefund: 1, biteCost: 2 }));
+  const before = paid.blood;
+  assert.equal(burn(paid).blood, before + 1);
+  const free = bite(table(['10S', '9H', '5D', '7C', '2S', '3H'], { burnRefund: 1, biteCost: 0 }));
+  assert.equal(burn(free).blood, free.blood, 'a free Bite has nothing to refund');
+  const none = bite(table(['10S', '9H', '5D', '7C', '2S', '3H'], { biteCost: 2 }));
+  assert.equal(burn(none).blood, none.blood, 'no refund by default');
+});

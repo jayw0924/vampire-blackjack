@@ -30,8 +30,8 @@
       <header id="frame-top">
         <h1>Vigil</h1>
         <p class="eyebrow">Castle Vesper · The Crimson Parlor</p>
-        <button id="settings" type="button" aria-expanded="false" aria-controls="settings-panel">Settings</button>
-        <button id="mute" type="button" aria-pressed="false">Sound off</button>
+        <button id="settings" type="button" aria-label="Settings" aria-expanded="false" aria-controls="settings-panel"><svg class="ico" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="9" cy="7" r="2.2" fill="#1a1014" stroke="currentColor" stroke-width="1.6"/><circle cx="15" cy="12" r="2.2" fill="#1a1014" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="17" r="2.2" fill="#1a1014" stroke="currentColor" stroke-width="1.6"/></svg><span class="lbl">Settings</span></button>
+        <button id="mute" type="button" aria-label="Sound off" aria-pressed="false"><svg class="ico" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path class="wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path class="cut" d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="lbl">Sound off</span></button>
       </header>
       <section id="settings-panel" aria-label="Settings" hidden>
         <p id="settings-record"></p>
@@ -88,9 +88,9 @@
           <div id="relics" role="group" aria-label="Relics"></div>
           <div id="controls">
             <div id="betting">
-              <button id="bet-down" type="button">Lower stake</button>
+              <button id="bet-down" type="button" aria-label="Lower stake"><span class="lbl">Lower stake</span><span class="sym" aria-hidden="true">−</span></button>
               <p id="pending-bet"></p>
-              <button id="bet-up" type="button">Raise stake</button>
+              <button id="bet-up" type="button" aria-label="Raise stake"><span class="lbl">Raise stake</span><span class="sym" aria-hidden="true">+</span></button>
               <button id="deal" type="button" aria-keyshortcuts="Space">Deal<span class="key" aria-hidden="true">Space</span></button>
               <button id="withdraw" type="button">Leave the table</button>
             </div>

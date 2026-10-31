@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
-  META_KEY, bestLabel, emptyMeta, hintFor, loadMeta, markHint, noteFloor, recordRun, resetMeta, saveMeta,
+  META_KEY, HINTS, bestLabel, emptyMeta, hintFor, loadMeta, markHint, noteFloor, recordRun, resetMeta, saveMeta,
 } from '../src/meta.js';
 
 function fakeStorage(initial = {}) {
@@ -63,7 +63,9 @@ test('first-run hints come once each, only on floor I', () => {
   assert.match(hint.text, /24/);
   seen = [hint.id];
   assert.equal(hintFor(run, view, seen), null);
-  assert.equal(hintFor({ ...run, floor: 2 }, view, []), null);
+  assert.equal(hintFor({ ...run, floor: 2 }, view, []).id, 'floor2');
+  assert.equal(hintFor({ ...run, floor: 2 }, view, ['floor2']), null);
+  assert.equal(hintFor({ ...run, floor: 2, handsPlayed: 3 }, view, []), null);
   const later = hintFor({ ...run, handsPlayed: 2 }, view, seen);
   assert.equal(later.id, 'hunger');
   assert.deepEqual(markHint(emptyMeta(), 'welcome').hintsSeen, ['welcome']);
@@ -75,4 +77,26 @@ test('the page reads and writes the record in one place', () => {
   const src = fs.readFileSync('src/meta.js', 'utf8');
   assert.equal(src.includes('document'), false);
   assert.equal(src.includes('localStorage'), false, 'storage is passed in');
+});
+
+test('the Steward speaks the Floor I hints; later floors use neutral house text', () => {
+  const run = { status: 'playing', floor: 1, handsPlayed: 0, quota: 24, relics: ['a'] };
+  const ids = ['welcome', 'hunger', 'bite', 'relic'];
+  for (const id of ids) {
+    const text = HINTS[id](run);
+    assert.doesNotMatch(text, /house's oldest|Vesper|Lamia/);
+  }
+  assert.match(HINTS.welcome(run), /^Good evening\./);
+  assert.match(HINTS.hunger(run), /I am afraid/);
+  assert.match(HINTS.bite(run), /Should you wish/);
+  assert.match(HINTS.bite(run), /one drop/);
+  assert.match(HINTS.relic(run), /Those tokens/);
+  // neutral: no first person, no pleasantries
+  for (const id of ['floor2', 'floor3']) assert.match(HINTS[id](run), /^House rule, Floor I+:/);
+  assert.doesNotMatch(HINTS.floor2(run) + HINTS.floor3(run), /\bI\b/);
+  assert.match(HINTS.floor2(run), /face up/);
+  assert.match(HINTS.floor2(run), /Hit costs a drop/);
+  assert.match(HINTS.floor3(run), /ties go to the house/i);
+  const view = { phase: 'betting', enabled: ['deal'] };
+  assert.equal(hintFor({ ...run, floor: 3 }, view, ['floor2']).id, 'floor3');
 });

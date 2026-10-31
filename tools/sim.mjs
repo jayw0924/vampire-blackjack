@@ -70,7 +70,7 @@ const PREF = ['lantern', 'tithe', 'charons-obol', 'lamias-tooth', 'silver-mirror
 export const BOTS = {
   casual: { name: 'casual', strategy: casual, bet: () => 4, bites: false, info: false, prefer: false },
   basic: { name: 'basic', strategy: basic, bet: () => 4, bites: false, info: false, prefer: true },
-  skilledBite: { name: 'skilled+bite', strategy: basic, bet: null, bites: true, info: true, prefer: true },
+  skilledNoBite: { name: 'skilled, no Bite', strategy: basic, bet: null, bites: false, info: true, prefer: true },
   skilled: { name: 'skilled', strategy: basic, bet: (run) => {
     const g = run.game; const left = run.handsTotal - run.handsPlayed;
     let b = 4;
@@ -78,7 +78,7 @@ export const BOTS = {
     else if (left <= 3 && run.quota - g.blood > 6) b = 8;
     else if (g.blood >= run.quota - 8) b = 6;
     return Math.min(b, Math.floor(g.blood / 2) * 2);
-  }, bites: false, info: true, prefer: true },
+  }, bites: true, biteAnyUp: true, keepMin: 17, info: true, prefer: true },
 };
 
 function betFor(bot, run) {
@@ -123,7 +123,8 @@ function decide(bot, run) {
   } else {
     move = bot.strategy(hand.cards, u, can);
   }
-  if (bot.bites && can.includes('bite') && g.blood >= 10 && move === 'hit' && handValue(hand.cards) >= 12 && !soft(hand.cards)) return 'bite';
+  if (bot.bites && can.includes('bite') && g.blood >= 10 && move === 'hit' && handValue(hand.cards) >= 12 && !soft(hand.cards)
+    && (bot.biteAnyUp || up >= 7)) return 'bite';
   if (!can.includes(move)) move = can.includes('stand') ? 'stand' : 'hit';
   return move;
 }
@@ -134,7 +135,7 @@ function choose(bot, run, seedSalt) {
   return run.choices[0];
 }
 
-BOTS.skilledBite.bet = BOTS.skilled.bet;
+BOTS.skilledNoBite.bet = BOTS.skilled.bet;
 
 export function playRun(bot, seed, { floor = 1, blood = null, relics = null, tuning = TUNING } = {}) {
   let run = createRun({ seed, floor, blood, relics, tuning });
@@ -156,7 +157,7 @@ export function playRun(bot, seed, { floor = 1, blood = null, relics = null, tun
     } else if (g.phase === 'bite') {
       const hand = g.playerHands[g.activeHand];
       const t = handValue(hand.cards.concat(g.pendingBite.card));
-      run = act(run, t <= 21 && t >= handValue(hand.cards) + 2 && t >= 14 ? 'keep' : 'burn');
+      run = act(run, t <= 21 && t >= (bot.keepMin ?? 14) ? 'keep' : 'burn');
     } else {
       run = act(run, decide(bot, run));
     }
@@ -206,17 +207,17 @@ export function report(tuning = TUNING, runs = RUNS) {
     };
     out.bots[bot.name] = entry;
   }
-  // Bite: what does it do to a skilled player's whole run at each price?
-  out.bite = {};
-  for (const cost of [1, 2, 3]) {
-    const t = { ...tuning, bite: { cost } };
-    const row = {};
-    for (const bot of [BOTS.skilled, BOTS.skilledBite]) {
+  // Bite: what does it do to a skilled player's whole run, at each price?
+  out.bite = [];
+  for (const price of [{ cost: 1, refund: 0 }, { cost: 2, refund: 1 }, { cost: 2, refund: 0 }, { cost: 3, refund: 0 }]) {
+    const t = { ...tuning, bite: price };
+    const row = { ...price };
+    for (const [key, bot] of [['without', BOTS.skilledNoBite], ['with', BOTS.skilled]]) {
       let won = 0;
       for (let s = 1; s <= runs; s += 1) if (playRun(bot, s * 13 + 1, { tuning: t }).end === 'won') won += 1;
-      row[bot.name] = rate(won, runs);
+      row[key] = rate(won, runs);
     }
-    out.bite[cost] = row;
+    out.bite.push(row);
   }
   return out;
 }
@@ -235,7 +236,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       const f = e.full;
       console.log(`  full run: reach F2 ${f.reachedF2}%, F3 ${f.reachedF3}%, escape ${f.escapeRate}%  (floor win | reached: ${f.clearF1} / ${f.clearF2GivenReached} / ${f.clearF3GivenReached})`);
     }
-    console.log('\nBite price vs whole-run escape rate (skilled bot):');
-    for (const [cost, row] of Object.entries(out.bite)) console.log(`  cost ${cost}: without Bite ${row.skilled}%  with Bite ${row['skilled+bite']}%`);
+    console.log('\nBite vs whole-run escape rate (skilled bot):');
+    for (const row of out.bite) console.log(`  cost ${row.cost}, burn refunds ${row.refund}: without Bite ${row.without}%  with Bite ${row.with}%  (${row.with - row.without >= 0 ? '+' : ''}${Math.round((row.with - row.without) * 10) / 10} points)`);
   }
 }

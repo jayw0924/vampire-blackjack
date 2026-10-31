@@ -24,6 +24,14 @@ export function candleCount(room) {
   return 3;
 }
 
+// One entry per hand the floor gives: 'lit' while hands remain, 'stub' once burned.
+// A burned candle never leaves the row; it stays as a stub.
+export function candleStates(total, lit) {
+  const n = Math.max(0, Math.floor(total) || 0);
+  const on = Math.max(0, Math.min(n, Math.floor(lit) || 0));
+  return Array.from({ length: n }, (_, i) => (i < on ? 'lit' : 'stub'));
+}
+
 export function stakeDrops(bet) {
   return Math.max(0, Math.floor(Number(bet) / 2) || 0);
 }
@@ -43,6 +51,7 @@ function dealerValueLabel(view) {
 function outcomeLabel(hand, busted) {
   if (!hand) return '';
   if (busted) return 'Bust';
+  if (hand.tie) return 'Tie, house wins';
   if (hand.outcome === 'blackjack') return 'Blackjack';
   if (hand.outcome === 'win') return 'Wins';
   if (hand.outcome === 'loss') return 'Loses';

@@ -30,8 +30,9 @@ test('the lines are game lines: blood and the house, never money or luck', () =>
 test('each boss changes exactly the rule his text says', () => {
   assert.deepEqual(BOSSES.steward.core, {});
   assert.deepEqual(BOSSES.lamia.core, { holeUp: true, hitCost: 1 });
-  assert.deepEqual(BOSSES.vesper.core, { dealerStandOn: 18 });
+  assert.deepEqual(BOSSES.vesper.core, { dealerStandOn: 18, tiesToHouse: true });
   assert.match(BOSSES.vesper.ruleText, /18/);
+  assert.match(BOSSES.vesper.ruleText, /Ties go to the house/);
   assert.match(BOSSES.lamia.ruleText, /face up/i);
 });
 

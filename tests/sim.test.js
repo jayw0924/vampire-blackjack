@@ -28,7 +28,20 @@ test('the shipped numbers are fair: a careful player usually clears floor I, and
   const out = report(TUNING, 400);
   const basic = out.bots.basic.isolated;
   assert.equal(basic.steward.clear >= 55 && basic.steward.clear <= 80, true, `floor I ${basic.steward.clear}`);
-  assert.equal(basic.steward.clear > basic.lamia.clear, true);
-  assert.equal(out.bots.skilled.full.escapeRate >= 15 && out.bots.skilled.full.escapeRate <= 45, true, `escape ${out.bots.skilled.full.escapeRate}`);
-  assert.equal(out.bots.casual.full.escapeRate < out.bots.skilled.full.escapeRate, true);
+  // the curve falls from floor I to III for every bot
+  for (const name of ['casual', 'basic', 'skilled']) {
+    const f = out.bots[name].isolated;
+    assert.equal(f.steward.clear > f.lamia.clear && f.lamia.clear > f.vesper.clear, true, `${name}: ${f.steward.clear}/${f.lamia.clear}/${f.vesper.clear}`);
+  }
+  const e = (n) => out.bots[n].full.escapeRate;
+  assert.equal(e('casual') >= 3 && e('casual') <= 12, true, `casual ${e('casual')}`);
+  assert.equal(e('basic') >= 12 && e('basic') <= 25, true, `basic ${e('basic')}`);
+  assert.equal(e('skilled') >= 22 && e('skilled') <= 40, true, `skilled ${e('skilled')}`);
+  assert.equal(e('casual') < e('basic') && e('basic') < e('skilled'), true);
+});
+
+test('Bite pays for a skilled player at the shipped price', () => {
+  const out = report(TUNING, 1500);
+  const shipped = out.bite.find((row) => row.cost === TUNING.bite.cost && row.refund === (TUNING.bite.refund ?? 0));
+  assert.equal(shipped.with - shipped.without >= 1.5, true, `${shipped.with} vs ${shipped.without}`);
 });

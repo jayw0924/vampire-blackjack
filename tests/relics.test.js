@@ -73,7 +73,7 @@ test("Lamia's Tooth makes the first Bite on a floor free", () => {
   run = act(run, 'deal');
   const paid = run.game.blood;
   run = act(run, 'bite');
-  assert.equal(run.game.blood, paid - 2);
+  assert.equal(run.game.blood, paid - run.game.rules.biteCost);
 });
 
 test('The Lantern adds a hand to every floor', () => {

@@ -6,9 +6,9 @@ You start with 20 drops. Bet 2, 4, 6, 8, or 10. Ordinary wins pay even money. A 
 
 A run is three floors: The Steward, The Lamia, Lord Vesper. Each floor gives you a number of hands before dawn (the candles beside the arch burn down, one per hand), takes a little blood for hunger as the hands go, and opens the stair when your blood reaches the quota. Below 2 drops the evening ends in the cellar. You may leave on your own before the deal.
 
-You may Bite once a hand: pay blood, draw one more card, then keep it or burn it. Relics, six of them, sit on the table's near rim; you choose one at the start and another each time you take the stair. Press and hold a token to read it; tap to use the Silver Mirror.
+You may Bite once a hand: pay one drop, draw one more card, then keep it or burn it. Relics, six of them, sit on the table's near rim; you choose one at the start and another each time you take the stair. Press and hold a token to read it; tap to use the Silver Mirror.
 
-Each dealer changes one rule. The Lamia deals face up and charges a drop for every Hit. Lord Vesper stands on 18. They remember what you did.
+Each dealer changes one rule. The Lamia deals face up and charges a drop for every Hit. Lord Vesper stands on 18, and ties go to the house (a push is a loss). They remember what you did.
 
 The room changes with your blood. The dealer remarks on the hand he can see, never the hole card. The room is silent until you switch Sound on. Your deepest floor is kept in this browser (Settings has a way to forget it).
 

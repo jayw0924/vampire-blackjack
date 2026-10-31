@@ -9,7 +9,7 @@ export const LINE_KEYS = [
   'intro', 'betting', 'player_turn', 'player_blackjack', 'dealer_blackjack', 'push',
   'player_win', 'player_loss', 'player_bust', 'dealer_bust', 'low_blood', 'bite',
   'burned', 'peeked', 'withdrew', 'cleared', 'dawn', 'drained', 'won',
-  'tell_high', 'tell_poor', 'tell_good',
+  'tell_high', 'tell_poor', 'tell_good', 'tie_house',
   // memory: what he remembers about you
   'loss_streak', 'win_streak', 'double_lost', 'double_won', 'bust_low', 'bite_habit', 'mirror',
 ];
@@ -46,6 +46,7 @@ export const BOSSES = {
       tell_high: ['He shows a high card, and does not blink.'],
       tell_poor: ['A poor hand. The greedy ones hit.'],
       tell_good: ['You could stand. The patient ones do.'],
+      tie_house: ['A tie is no longer a tie, here.'],
       loss_streak: ['Three in a row. The house hates to see a guest so unlucky, and watches closely.'],
       win_streak: ['Three in a row. The house begins to take it personally.'],
       double_lost: ['You doubled, and the house thanks you for it.'],
@@ -84,6 +85,7 @@ export const BOSSES = {
       dawn: ['Dawn. I never could keep a guest past dawn.'],
       drained: ['Empty. And I was just getting to like you.'],
       won: ['Sunrise. Even I will miss you.'],
+      tie_house: ['A tie, darling. I keep those.'],
       tell_high: ['Her up-card is cold and high. She waits.'],
       tell_poor: ['A poor hand, and every Hit is a sip.'],
       tell_good: ['You could stand, darling. It costs nothing.'],
@@ -103,8 +105,8 @@ export const BOSSES = {
     plate: 'Lord Vesper',
     floorName: 'Floor III · Lord Vesper',
     portrait: 'vesper',
-    ruleText: 'He stands on 18.',
-    core: { dealerStandOn: 18 },
+    ruleText: 'He stands on 18. Ties go to the house.',
+    core: { dealerStandOn: 18, tiesToHouse: true },
     lines: {
       intro: ['Good evening. I have been listening to your heart since the stairs.'],
       betting: ['Place your blood on the felt. Two drops, or ten.', 'I can wait. I have had a great deal of practice.'],
@@ -128,6 +130,7 @@ export const BOSSES = {
       tell_high: ['He shows a high card, and does not blink.'],
       tell_poor: ['A poor hand. The greedy ones hit.'],
       tell_good: ['You could stand. The patient ones do.'],
+      tie_house: ['A tie. I keep those. It is only fair.'],
       loss_streak: ['Third loss in a row. I could hear that one coming, from your pulse.'],
       win_streak: ['Three wins. You have a rhythm. I will learn it.'],
       double_lost: ['You doubled. I watched your hands. They were steady. They should not have been.'],

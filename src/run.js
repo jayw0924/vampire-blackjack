@@ -23,10 +23,12 @@ function emptyHand() {
 function coreRules(run, bossId, startBlood) {
   const rules = {
     ...BOSSES[bossId].core,
+    ...(run.tuning.floors[bossId].rules || {}),
     autoEnd: false,
     satedAt: null,
     biteEnabled: true,
     biteCost: run.tuning.bite.cost,
+    burnRefund: run.tuning.bite.refund ?? 0,
     startBlood,
   };
   for (const patch of runHook(run, 'onRules')) Object.assign(rules, patch.rules ?? patch);

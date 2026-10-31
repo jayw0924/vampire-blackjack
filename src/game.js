@@ -11,6 +11,8 @@ export const CORE_RULES = {
   hitCost: 0, // blood paid for each Hit
   biteEnabled: false,
   biteCost: 2,
+  burnRefund: 0, // blood handed back when a bitten card is burned (never more than was paid)
+  tiesToHouse: false, // a tie is a loss
   maxHands: 2, // 2 = split once; 3 = one resplit
   autoEnd: true, // false: the evening never ends by itself (a run decides)
   satedAt: RULES.satedAt, // null: no blood target ends the evening
@@ -149,6 +151,7 @@ function outcomeNet(outcome, bet) {
 
 function chooseMessage(playerHands, results, dealerCards, net) {
   if (playerHands.every((hand) => hand.busted)) return 'player_bust';
+  if (results.some((hand) => hand.tie) && results.every((hand) => hand.tie || hand.outcome !== 'win')) return 'tie_house';
   if (results.some((hand) => hand.outcome === 'blackjack')) return 'player_blackjack';
   if (handValue(dealerCards) > 21 && net > 0) return 'dealer_bust';
   if (isBlackjack(dealerCards) && net < 0) return 'dealer_blackjack';
@@ -160,9 +163,11 @@ function chooseMessage(playerHands, results, dealerCards, net) {
 function settle(game) {
   let blood = game.blood;
   const results = game.playerHands.map((hand) => {
-    const outcome = outcomeFor(hand.cards, game.dealerCards, !hand.fromSplit);
+    let outcome = outcomeFor(hand.cards, game.dealerCards, !hand.fromSplit);
+    const tie = outcome === 'push' && game.rules.tiesToHouse;
+    if (tie) outcome = 'loss';
     blood += stakeReturned(outcome, hand.bet);
-    return { outcome, bet: hand.bet, net: outcomeNet(outcome, hand.bet) };
+    return { outcome, tie, bet: hand.bet, net: outcomeNet(outcome, hand.bet) };
   });
   const net = results.reduce((sum, hand) => sum + hand.net, 0);
   let phase = 'settled';
@@ -268,6 +273,8 @@ export function publicView(game) {
       hitCost: game.rules.hitCost,
       biteEnabled: game.rules.biteEnabled,
       biteCost: game.rules.biteCost,
+      burnRefund: game.rules.burnRefund,
+      tiesToHouse: game.rules.tiesToHouse,
     },
   };
 }
@@ -384,8 +391,10 @@ export function keep(game) {
 
 export function burn(game) {
   assertAction(game, 'burn');
+  const refund = Math.min(game.rules.burnRefund, game.pendingBite.cost);
   return {
     ...game,
+    blood: game.blood + refund,
     burned: game.burned.concat(game.pendingBite.card),
     pendingBite: null,
     phase: 'player',

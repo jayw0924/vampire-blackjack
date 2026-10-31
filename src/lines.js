@@ -12,6 +12,7 @@ export const LINES = {
   drained: 'The evening ends. You will be a quiet guest in the cellar.',
   sated: 'Enough. Leave while I am still amused.',
   withdrew: 'You stand. Few do. Go.',
+  tie_house: 'A tie. The house keeps it.',
   bite: 'Keep it, or burn it.',
   burned: 'Burned. It will not come back to you.',
   peeked: 'You look. He lets you.',

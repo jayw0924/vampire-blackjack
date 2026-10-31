@@ -5,7 +5,7 @@ import { keyAction } from './keys.js';
 import {
   bestLabel, emptyMeta, hintFor, loadMeta, markHint, noteFloor, recordRun, resetMeta, saveMeta,
 } from './meta.js';
-import { bloodLabel, present, vialFilled } from './render.js';
+import { bloodLabel, candleStates, present, vialFilled } from './render.js';
 import { RELIC_IDS } from './relics.js';
 import { act as runAct, createRun, isTerminal, runView } from './run.js';
 import { TUNING } from './tuning.js';
@@ -188,7 +188,13 @@ function writeBlood(n) {
   const count = document.createElement('span');
   count.className = 'count';
   count.textContent = String(n);
-  el.append(count, n === 1 ? 'drop of blood' : 'drops of blood');
+  const unit = document.createElement('span');
+  unit.className = 'unit';
+  unit.textContent = n === 1 ? 'drop' : 'drops';
+  const rest = document.createElement('span');
+  rest.className = 'visually-hidden';
+  rest.textContent = ' of blood';
+  el.append(count, unit, rest);
 }
 
 function flashVial(kind) {
@@ -420,11 +426,23 @@ function paintCandles(view) {
   const el = must('candles');
   const total = view.candlesTotal ?? 3;
   const lit = view.candlesLit ?? view.candleCount;
-  fillCount(el, lit, total, 'candle');
-  const marks = Array.from(el.children);
-  marks.forEach((mark, i) => {
-    mark.classList.toggle('last', lit > 0 && i === lit - 1);
-    if (candlesWere !== null && candlesWere > lit && i >= lit && i < candlesWere) mark.classList.add('snuffed');
+  const states = candleStates(total, lit);
+  if (el.children.length !== states.length) {
+    el.replaceChildren();
+    for (let i = 0; i < states.length; i += 1) {
+      const mark = document.createElement('span');
+      mark.dataset.state = 'lit';
+      mark.className = 'candle lit';
+      el.append(mark);
+    }
+  }
+  Array.from(el.children).forEach((mark, i) => {
+    const was = mark.dataset.state;
+    const now = states[i];
+    mark.dataset.state = now;
+    mark.className = `candle ${now}`;
+    if (now === 'lit' && i === lit - 1) mark.classList.add('last');
+    if (was === 'lit' && now === 'stub') mark.classList.add('snuffed');
   });
   if (candlesWere !== null && candlesWere > lit) sfx('snuff');
   candlesWere = lit;
@@ -561,7 +579,14 @@ function paint(view, { hold = false, onUse, onPick } = {}) {
   must('remark').textContent = view.remark;
   must('rule').textContent = view.ruleText || '';
   must('hint').textContent = hintText;
-  must('pending-bet').textContent = view.stakeLabel;
+  const stake = must('pending-bet');
+  if (stake.dataset.label !== view.stakeLabel) {
+    stake.dataset.label = view.stakeLabel;
+    const k = document.createElement('span');
+    k.className = 'k';
+    k.textContent = 'Stake: ';
+    stake.replaceChildren(k, view.stakeLabel.replace(/^Stake: /, ''));
+  }
   must('plate-name').textContent = view.plateName || 'The Steward';
   must('dealer-title').textContent = view.plateName || 'The dealer';
   must('lord-caption').textContent = view.plateName || '';
@@ -812,7 +837,10 @@ function boot() {
 
   const sync = () => {
     const muted = isMuted();
-    must('mute').textContent = muted ? 'Sound off' : 'Sound on';
+    const label = muted ? 'Sound off' : 'Sound on';
+    must('mute').querySelector('.lbl').textContent = label;
+    must('mute').setAttribute('aria-label', label);
+    must('mute').dataset.on = String(!muted);
     must('mute').setAttribute('aria-pressed', String(!muted));
   };
   must('mute').addEventListener('click', (event) => {
