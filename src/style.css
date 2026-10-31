@@ -1,43 +1,28 @@
+:root {
+  --serif: "Cormorant Garamond", Georgia, "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --card-w: 78px;
+  --card-h: 112px;
+  --card-overlap: 30px;
+}
+
 * { box-sizing: border-box; }
+
+html { font-size: 112.5%; }
 
 body {
   margin: 0;
   min-height: 100vh;
   background: #050203;
   color: #f3e6d0;
-  font-family: Georgia, "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  font-family: var(--serif);
+  font-weight: 500;
 }
 
 #parlor {
-  max-width: 980px;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 28px 20px 48px;
-}
-
-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 16px;
-  margin-bottom: 8px;
-}
-
-.eyebrow {
-  margin: 0;
-  width: 100%;
-  color: #6d584c;
-  letter-spacing: 0.14em;
-  font-size: 0.68rem;
-  text-transform: uppercase;
-}
-
-h1 {
-  margin: 0;
-  color: #c4a574;
-  font-size: 1.02rem;
-  font-weight: normal;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  padding: 12px 16px 16px;
 }
 
 .visually-hidden {
@@ -51,20 +36,19 @@ h1 {
   border: 0;
 }
 
+/* The frame: its top edge carries the title, and the room runs inside it. */
 #manor {
   --pool: 0.4;
   --pool-scale: 1;
   position: relative;
-  margin-top: 0;
-  padding: 22px 108px 28px 72px;
+  padding: 0 108px 18px 72px;
   border: 1px solid #2a181c;
-  border-top: 16px solid #1a1014;
   border-radius: 2px;
   background:
     linear-gradient(90deg, #050203 0%, transparent 14%, transparent 78%, #050203 100%),
     linear-gradient(180deg, #1c1216 0%, #14080c 38%, #10080c 100%);
   box-shadow: inset 0 0 48px #050203;
-  overflow: hidden;
+  overflow-x: clip;
 }
 
 #manor[data-candles="2"] {
@@ -110,80 +94,62 @@ body[data-room="flushed"] #vial {
   box-shadow: inset 1px 0 0 rgba(243, 230, 208, 0.28), 0 0 14px #9b2331;
 }
 
-#door {
-  position: absolute;
-  top: 36px;
-  right: 40px;
-  z-index: 2;
-  width: 16px;
-  height: 148px;
-  background: #050203;
-  box-shadow:
-    inset 0 0 14px #050203,
-    -8px 0 0 #1a1014,
-    8px 0 0 #1a1014,
-    0 0 0 1px #3a2428;
-  pointer-events: none;
-}
-body[data-room="hungry"] #door {
-  width: 8px;
-  height: 112px;
-}
-body[data-room="close"] #door {
-  width: 3px;
-  height: 78px;
-}
-body[data-room="cellar"] #door {
-  top: auto;
-  bottom: 28px;
-  width: 22px;
-  height: 196px;
-  background: #050203;
-  box-shadow:
-    inset 0 -18px 0 #9b2331,
-    inset 0 0 18px #050203,
-    -8px 0 0 #1a1014,
-    8px 0 0 #1a1014;
-}
-body[data-room="dismissal"] #door {
-  width: 14px;
-  height: 168px;
+#frame-top {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 4px 18px;
+  margin: 0 -108px 0 -72px;
+  padding: 2px 12px 2px 20px;
   background: #1a1014;
-  box-shadow:
-    inset 4px 0 0 #a89080,
-    -8px 0 0 #1a1014,
-    8px 0 0 #1a1014;
+  border-bottom: 1px solid #8a7048;
 }
-body[data-room="departure"] #door {
-  right: auto;
-  left: 28px;
-  width: 14px;
-  height: 168px;
-  background: #1a1014;
-  box-shadow:
-    inset -4px 0 0 #a89080,
-    -8px 0 0 #1a1014,
-    8px 0 0 #1a1014;
+body[data-room="hungry"] #frame-top { margin-left: -48px; }
+body[data-room="close"] #frame-top { margin-left: -32px; }
+
+h1 {
+  margin: 0;
+  color: #c4a574;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+}
+.eyebrow {
+  margin: 0;
+  color: #a89080;
+  font-family: var(--mono);
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  text-transform: uppercase;
 }
 
-#room, #story {
+/* The slim line inside the frame: where you are, and how long until dawn. */
+#topline {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 4px 0;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+#floor-name { margin: 0; color: #c4a574; }
+#dawn-left { margin: 0; color: #c9b8a0; }
+#room {
   position: relative;
   z-index: 1;
   margin: 0;
-  color: #6d584c;
-  font-size: 0.78rem;
-  letter-spacing: 0.05em;
-  text-align: center;
 }
-#story { font-style: italic; color: #a89080; }
-#remark:empty, #story:empty { display: none; }
 
 #felt {
   position: relative;
   z-index: 1;
-  min-height: 560px;
-  margin: 18px auto 0;
-  padding: 22px 40px 18px;
+  margin: 8px auto 0;
+  padding: 14px 40px 24px;
   border-radius: 240px;
   border: 1px solid #8a7048;
   background: radial-gradient(ellipse at center, #5c242c 0%, #3a151c 46%, #14080c 100%);
@@ -196,32 +162,99 @@ body[data-room="departure"] #door {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 6px;
 }
 
 #far, #near, #dealer-rail, #player-rail { text-align: center; }
 
+/* ---- the dealer: arch, plate, candles ---- */
+#far { position: relative; }
+#lord {
+  position: relative;
+  z-index: 0;
+  margin: 0 auto;
+  pointer-events: none;
+}
+#lord::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  z-index: 0;
+  width: 220px;
+  height: 64px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 100%, rgba(243, 230, 208, var(--pool)), transparent 72%);
+}
+#plate, #dealer-rail { position: relative; z-index: 1; }
+#lord-frame {
+  position: relative;
+  z-index: 1;
+  width: 120px;
+  height: 160px;
+  margin: 0 auto;
+  border: 1px solid #8a7048;
+  border-radius: 100px 100px 4px 4px;
+  background: #050203;
+  box-shadow:
+    inset 0 0 32px #050203,
+    0 18px 28px rgba(5, 2, 3, 0.7);
+  overflow: hidden;
+}
+#lord-portrait {
+  display: none;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 8%;
+}
+#lord-frame[data-portrait="set"] #lord-portrait { display: block; }
+
+#plate {
+  max-width: 460px;
+  margin: 4px auto 6px;
+  text-align: center;
+}
+#plate-name {
+  margin: 0 0 2px;
+  color: #c4a574;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
 #message {
   min-height: 1.5em;
-  margin: 6px 0 0;
+  margin: 0;
   text-align: center;
-  font-size: 1.12rem;
-  line-height: 1.4;
+  font-size: 1.2rem;
+  font-style: italic;
+  line-height: 1.3;
 }
-
-#remark {
-  margin: 0 0 6px;
-  text-align: center;
-  color: #a89080;
+#message:not(:empty)::before { content: "\201C"; color: #8a7048; }
+#message:not(:empty)::after { content: "\201D"; color: #8a7048; }
+#remark, #story {
+  margin: 3px 0 0;
+  color: #c9b8a0;
+  font-size: 1rem;
+  line-height: 1.25;
 }
+#story { font-style: italic; color: #e8d9c0; }
+#remark:empty, #story:empty { display: none; }
 
+/* The candles stand on a ledge below the arch, not on his coat. */
 #candles {
   display: flex;
+  align-items: flex-end;
   justify-content: center;
   gap: 72px;
-  min-height: 36px;
-  margin-bottom: 4px;
+  width: 300px;
+  max-width: 100%;
+  height: 40px;
+  margin: 6px auto 0;
+  border-bottom: 1px solid #3a2428;
 }
-
 .candle {
   width: 7px;
   height: 12px;
@@ -254,87 +287,80 @@ body[data-room="departure"] #door {
   box-shadow: 0 0 8px #8a7048, 0 0 16px #9b2331;
 }
 
-#far { position: relative; padding-top: 132px; }
-#lord {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  z-index: 0;
-  margin: 0;
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-#lord::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: -4px;
-  z-index: 0;
-  width: 220px;
-  height: 64px;
-  transform: translateX(-50%);
-  pointer-events: none;
-  background: radial-gradient(ellipse at 50% 100%, rgba(243, 230, 208, var(--pool)), transparent 72%);
-}
-#candles, #message, #remark, #dealer-rail { position: relative; z-index: 1; }
-#lord-frame {
+/* ---- cards ---- */
+.cardrow {
   position: relative;
-  z-index: 1;
-  width: 186px;
-  height: 248px;
+  width: fit-content;
   margin: 0 auto;
-  border: 1px solid #8a7048;
-  border-radius: 100px 100px 4px 4px;
-  background: #050203;
-  box-shadow:
-    inset 0 0 32px #050203,
-    0 18px 28px rgba(5, 2, 3, 0.7);
-  overflow: hidden;
 }
-#lord-portrait {
-  display: none;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 8%;
-}
-#lord-frame[data-portrait="set"] #lord-portrait { display: block; }
-
-#dealer-value { min-height: 1.2em; margin: 4px 0 0; color: #a89080; }
-
 .cards, .hand { display: flex; justify-content: center; align-items: flex-start; }
-.hand { flex-direction: column; margin: 0 12px; }
-.hand p { margin: 4px 0; color: #a89080; }
+.cards { min-height: var(--card-h); perspective: 700px; }
+#player-hands { display: flex; justify-content: center; flex-wrap: wrap; }
+.hand { flex-direction: column; align-items: center; margin: 0 12px 4px; }
+.hand p { margin: 4px 0; color: #c9b8a0; }
+.hand .label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+#player-hands:not(.multi) .label { display: none; }
+.hand .total, #dealer-value { margin: 6px 0 0; line-height: 1.2; white-space: nowrap; }
+.hand .num, #dealer-value {
+  color: #f3e6d0;
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 1.5rem;
+  text-shadow: 0 1px 4px #050203;
+}
+.hand .tag {
+  margin-left: 10px;
+  color: #c4a574;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+#dealer-value { min-height: 1.3em; margin-top: 4px; }
 .hand.active .cards { box-shadow: inset 0 0 0 1px #8a7048; }
 
 .card {
   position: relative;
-  width: 78px;
-  height: 112px;
-  margin: 0 -8px;
+  width: var(--card-w);
+  height: var(--card-h);
+  margin: 0;
   border-radius: 6px;
   background: #f3e6d0;
   color: #1a1014;
   border: 1px solid #1a1014;
+  font-variant-numeric: lining-nums;
   box-shadow:
     0 1px 0 #d4c4ae,
     0 3px 0 #1a1014,
     0 12px 16px rgba(5, 2, 3, 0.55);
 }
+.card + .card { margin-left: calc(var(--card-overlap) * -1); }
 .card.red { color: #9b2331; }
+/* One index per corner: rank over suit. The far corner is the same index turned
+   half a circle. Neighbouring cards cover the far corner of the card beneath. */
 .corner {
   position: absolute;
-  top: 6px;
+  top: 5px;
   left: 6px;
-  font-size: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 18px;
   line-height: 1;
   z-index: 1;
 }
+.corner .rank { font-size: calc(var(--card-w) * 0.26); font-weight: 600; }
+.corner .suit { margin-top: 1px; font-size: calc(var(--card-w) * 0.18); }
 .corner.minor {
   top: auto;
   left: auto;
   right: 6px;
-  bottom: 6px;
+  bottom: 5px;
   transform: rotate(180deg);
 }
 .pip {
@@ -343,16 +369,20 @@ body[data-room="departure"] #door {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 30px;
+  font-size: calc(var(--card-w) * 0.46);
 }
 .card.back {
   background: #2a1218;
+  background-image: var(--card-back, none);
+  background-size: cover;
+  background-position: center;
   color: transparent;
   border: 1px solid #c4a574;
   box-shadow:
     0 3px 0 #1a1014,
     0 12px 16px rgba(5, 2, 3, 0.55);
 }
+body[data-art-back] .back-mark { display: none; }
 .back-mark {
   position: absolute;
   left: 50%;
@@ -368,8 +398,8 @@ body[data-room="departure"] #door {
   display: flex;
   justify-content: center;
   gap: 8px;
-  min-height: 18px;
-  margin: 10px 0;
+  min-height: 16px;
+  margin: 2px 0;
 }
 .drop {
   width: 12px;
@@ -385,23 +415,95 @@ body[data-room="departure"] #door {
   margin: 0;
 }
 
-#near { padding-bottom: 8px; }
+/* The seal lands on your cards. */
+#stamp {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 4;
+  margin: 0;
+  padding: 6px 22px 4px;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  border: 3px double #c4a574;
+  border-radius: 4px;
+  background: rgba(20, 8, 12, 0.78);
+  color: #f3e6d0;
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+#stamp:empty { display: none; }
+#stamp[data-kind="bust"] { border-color: #9b2331; color: #e8806f; }
+
+/* ---- controls ---- */
+#controls { min-height: 62px; margin-top: 8px; }
 #betting:not([hidden]),
 #actions:not([hidden]),
 #between:not([hidden]) {
-  margin-top: 10px;
-  padding: 8px 10px 6px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 6px 10px 4px;
   border-radius: 10px;
   background: #1a1014;
   box-shadow: inset 0 1px 0 #3a2428, 0 0 0 1px #8a7048;
 }
+#pending-bet {
+  margin: 0 6px;
+  min-width: 5.5em;
+  color: #c9b8a0;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  text-align: center;
+}
 
+button {
+  min-height: 44px;
+  background: #14080c;
+  color: #f3e6d0;
+  border: 1px solid #3a2428;
+  border-radius: 4px;
+  padding: 8px 16px;
+  margin: 4px 5px 4px 0;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+button:hover { border-color: #8a7048; }
+button:focus-visible { outline: 2px solid #8a7048; outline-offset: 2px; }
+button:disabled { opacity: 0.35; }
+[hidden] { display: none; }
+#mute {
+  margin: 0 0 0 auto;
+  min-height: 44px;
+  color: #c9b8a0;
+  background: transparent;
+  letter-spacing: 0.06em;
+}
+.key {
+  margin-left: 8px;
+  padding: 1px 5px;
+  border: 1px solid #3a2428;
+  border-radius: 3px;
+  color: #a89080;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+@media (hover: none) { .key { display: none; } }
+
+/* ---- the vial: blood is the number that matters, so it sits at the right ---- */
 #cup {
   position: absolute;
-  right: 12px;
-  bottom: 28px;
+  right: 18px;
+  top: 82px;
   z-index: 3;
-  width: 84px;
+  width: 74px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -410,82 +512,82 @@ body[data-room="departure"] #door {
 }
 #vial {
   position: relative;
-  width: 16px;
-  height: 148px;
+  width: 18px;
+  height: 250px;
   padding: 3px;
   border: 1px solid #8e2f3a;
-  border-radius: 8px;
+  border-radius: 9px;
   display: flex;
   flex-direction: column-reverse;
   gap: 2px;
   background: #14080c;
   box-shadow: inset 1px 0 0 rgba(243, 230, 208, 0.28), 0 0 0 1px #1a1014;
+  transition: box-shadow 300ms ease;
 }
-.tick { flex: 1; background: #2a1218; border-radius: 1px; }
+.tick { flex: 1; background: #2a1218; border-radius: 1px; transition: background-color 220ms ease; }
 .tick.filled { background: #9b2331; }
-
+#vial.gain { box-shadow: inset 1px 0 0 rgba(243, 230, 208, 0.28), 0 0 18px #d1263e, 0 0 0 1px #c4a574; }
+#vial.loss { box-shadow: inset 1px 0 0 rgba(243, 230, 208, 0.28), 0 0 14px #050203, 0 0 0 1px #6a1822; }
 #blood {
   margin: 0;
-  width: 84px;
-  color: #9b2331;
-  font-size: 0.78rem;
+  width: 74px;
+  color: #c45a4a;
+  font-family: var(--mono);
+  font-size: 0.8rem;
   line-height: 1.25;
   text-align: center;
 }
-#pending-bet {
-  margin: 0;
-  width: 84px;
-  color: #a89080;
-  font-size: 0.68rem;
-  line-height: 1.25;
-  text-align: center;
-}
+#blood .count { display: block; color: #e8806f; font-size: 1.7rem; line-height: 1.1; }
 #ledger {
-  margin: 16px 0 0;
-  color: #6d584c;
+  min-height: 1.3em;
+  margin: 0;
+  color: #c9b8a0;
+  font-family: var(--mono);
   font-size: 0.78rem;
-  letter-spacing: 0.04em;
+  line-height: 1.25;
   text-align: center;
 }
 #parlor.low #blood,
-body[data-room="close"] #blood { color: #c45a4a; }
-body[data-room="close"] #blood { font-size: 0.92rem; }
+body[data-room="close"] #blood { color: #e8806f; }
 
-button {
-  min-height: 44px;
-  background: #14080c;
-  color: #f3e6d0;
-  border: 1px solid #3a2428;
-  border-radius: 4px;
-  padding: 8px 14px;
-  margin: 4px 6px 4px 0;
-  font: inherit;
+/* ---- grime: a vignette that closes as blood drains, and a drifting film grain ---- */
+#vignette, #grain {
+  position: fixed;
+  pointer-events: none;
 }
-#mute {
-  margin-left: auto;
-  min-height: 36px;
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  color: #6d584c;
-  background: transparent;
-  border-color: #3a2428;
+#vignette {
+  inset: 0;
+  z-index: 40;
+  background: radial-gradient(ellipse at 50% 42%, transparent 55%, rgba(5, 2, 3, 0.6) 100%);
 }
-button:hover { border-color: #8a7048; }
-button:focus-visible { outline: 2px solid #8a7048; outline-offset: 2px; }
-button:disabled { opacity: 0.35; }
-[hidden] { display: none; }
+body[data-room="hungry"] #vignette {
+  background: radial-gradient(ellipse at 50% 42%, transparent 46%, rgba(5, 2, 3, 0.72) 100%);
+}
+body[data-room="close"] #vignette,
+body[data-room="cellar"] #vignette {
+  background: radial-gradient(ellipse at 50% 42%, transparent 36%, rgba(5, 2, 3, 0.86) 100%);
+}
+#grain {
+  inset: -64px;
+  z-index: 41;
+  opacity: 0.11;
+  mix-blend-mode: overlay;
+  background-size: 128px 128px;
+}
 
-@media (prefers-reduced-motion: no-preference) {
-  .card { animation: deal-in 120ms ease-out; }
-  .candle.lit::after { animation: flame 1.4s ease-in-out infinite; }
-  body[data-room="close"] .tick.filled { animation: pulse 1.6s ease-in-out infinite; }
-}
-@media (prefers-reduced-motion: reduce) {
-  #manor::before { transition: none; }
-}
+/* ---- motion ---- */
 @keyframes deal-in {
-  from { transform: translateY(-8px); }
+  from { opacity: 0; transform: translate(150px, -140px) rotate(12deg) scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes unflip {
+  from { transform: rotateY(-90deg); }
   to { transform: none; }
+}
+@keyframes stamp {
+  from { opacity: 0; transform: translate(-50%, -50%) rotate(-12deg) scale(1.7); }
+  60% { opacity: 1; transform: translate(-50%, -50%) rotate(-12deg) scale(0.96); }
+  to { opacity: 1; transform: translate(-50%, -50%) rotate(-12deg) scale(1); }
 }
 @keyframes pulse {
   0%, 100% { opacity: 1; }
@@ -495,18 +597,752 @@ button:disabled { opacity: 0.35; }
   0%, 100% { transform: scaleY(1); }
   50% { transform: scaleY(0.82); }
 }
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-37px, 21px); }
+  40% { transform: translate(18px, -44px); }
+  60% { transform: translate(-52px, -12px); }
+  80% { transform: translate(31px, 40px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+@keyframes delta {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card.dealt {
+    animation: deal-in 280ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+    animation-delay: var(--delay, 0ms);
+  }
+  .card.turning { transform: rotateY(90deg); transition: transform 200ms ease-in; }
+  .card.unflip { animation: unflip 260ms ease-out; }
+  #stamp:not(:empty) { animation: stamp 320ms ease-out; }
+  #ledger.pop { animation: delta 420ms ease-out; }
+  .candle.lit::after { animation: flame 1.4s ease-in-out infinite; }
+  body[data-room="close"] .tick.filled { animation: pulse 1.6s ease-in-out infinite; }
+  body[data-room="close"] #vignette { animation: breathe 1.7s ease-in-out infinite; }
+  #grain { animation: grain 0.9s steps(1) infinite; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #manor::before { transition: none; }
+  .tick, #vial { transition: none; }
+}
+
+/* ---- wide screens: face to face, and the whole table fits a laptop screen ---- */
+@media (min-width: 900px) {
+  :root { --card-w: 90px; --card-h: 129px; --card-overlap: 34px; }
+  #far {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 28px;
+    align-items: end;
+  }
+  #lord { grid-column: 2; grid-row: 1; }
+  #candles {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: end;
+    width: 120px;
+    gap: 24px;
+    margin: 0;
+    height: 40px;
+  }
+  #plate {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: start;
+    align-self: center;
+    max-width: 270px;
+    margin: 0;
+    text-align: left;
+  }
+  #plate-name { margin-bottom: 4px; }
+  #message { text-align: left; }
+  #dealer-rail { grid-column: 1 / -1; grid-row: 2; margin-top: 8px; }
+  #lord-frame { width: 128px; height: 172px; }
+  #dealer-value,
+  #player-hands:not(.multi) .total {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    margin: 0 0 0 18px;
+    transform: translateY(-50%);
+  }
+}
+
+/* ---- phones: the vial moves to the top line; the action bar follows the thumb ---- */
+@media (max-width: 640px) {
+  #parlor { padding: 8px 8px 12px; }
+  #manor { padding: 0 10px 14px; }
+  body[data-room="hungry"] #manor,
+  body[data-room="close"] #manor { padding-left: 10px; box-shadow: inset 0 0 60px #050203; }
+  #frame-top, body[data-room="hungry"] #frame-top, body[data-room="close"] #frame-top {
+    margin: 0 -10px;
+    padding: 0 6px 0 12px;
+  }
+  .eyebrow { display: none; }
+  h1 { font-size: 1.3rem; letter-spacing: 0.3em; }
+  #mute { padding: 8px 10px; }
+  #topline {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 10px;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+  }
+  #cup {
+    position: static;
+    grid-column: 1 / -1;
+    flex-direction: row;
+    width: auto;
+    gap: 10px;
+  }
+  #vial {
+    flex: 1;
+    width: auto;
+    height: 16px;
+    padding: 2px;
+    border-radius: 8px;
+    flex-direction: row;
+  }
+  #blood { order: 3; width: auto; font-size: 0.78rem; white-space: nowrap; }
+  #blood .count { display: inline; font-size: 1rem; margin-right: 4px; }
+  #ledger { order: 4; min-width: 3.5em; }
+  #felt { border-radius: 120px; padding: 12px 10px 18px; gap: 6px; }
+  :root { --card-w: 64px; --card-h: 96px; --card-overlap: 24px; }
+  #candles { gap: 44px; width: 200px; height: 38px; }
+  #lord-frame { width: 104px; height: 140px; }
+  #plate { margin: 2px auto 6px; }
+  #message { font-size: 1.1rem; }
+  #remark, #story { font-size: 0.95rem; }
+  #dealer-value { font-size: 1.3rem; }
+  .hand { margin: 0 6px 4px; }
+  .hand .num { font-size: 1.3rem; }
+  #controls {
+    position: sticky;
+    bottom: 0;
+    z-index: 6;
+    margin: 6px -4px 0;
+    padding: 6px 4px 4px;
+    background: linear-gradient(180deg, rgba(20, 8, 12, 0), rgba(20, 8, 12, 0.95) 28%);
+  }
+  #betting:not([hidden]), #actions:not([hidden]), #between:not([hidden]) { padding: 4px 4px 2px; }
+  #actions button { flex: 1 1 0; min-width: 0; margin: 3px 2px; padding: 8px 2px; font-size: 0.74rem; letter-spacing: 0.04em; }
+  #betting button { flex: 1 1 auto; min-width: 0; margin: 3px 2px; padding: 8px 6px; font-size: 0.74rem; letter-spacing: 0.04em; }
+  #stamp { font-size: 1.2rem; padding: 4px 14px 2px; }
+}
+
+/* ======== the run: floors, the dawn clock, relics, the Bite ======== */
+
+/* The floor's backdrop sits behind the felt, dim, and never carries text. */
+#backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+#backdrop[data-set="true"] { opacity: 0.32; }
+
+#quota {
+  margin: 0;
+  color: #c9b8a0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  text-align: center;
+}
+#quota:empty { display: none; }
+.tick.goal { box-shadow: 0 0 0 1px #c4a574; }
+
+#rule {
+  margin: 0 0 3px;
+  color: #a89080;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+}
+#rule:empty { display: none; }
+#hint {
+  margin: 6px 0 0;
+  padding: 3px 0 3px 10px;
+  border-left: 2px solid #8a7048;
+  color: #c9b8a0;
+  font-size: 0.95rem;
+  font-style: italic;
+  line-height: 1.25;
+  text-align: left;
+}
+#hint:empty { display: none; }
+
+/* The dawn clock: one candle for every hand left. It burns down one per hand. */
+#candles {
+  flex-wrap: wrap;
+  align-content: flex-end;
+  gap: 8px 10px;
+  height: auto;
+  min-height: 40px;
+}
+.candle { transition: height 500ms ease, background-color 500ms ease; }
+.candle.last::after { animation-duration: 0.7s; }
+@keyframes smoke {
+  from { opacity: 0.7; transform: translateY(0) scaleX(1); }
+  to { opacity: 0; transform: translateY(-22px) scaleX(2.4); }
+}
+.candle.snuffed::before {
+  background: #8a7048;
+  height: 14px;
+  top: -14px;
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .candle.snuffed::before { animation: smoke 1.2s ease-out; }
+}
+
+/* ---- relics: physical tokens on the near rim, left of the action bar ---- */
+#bar { position: relative; }
+#relics {
+  position: absolute;
+  left: 8px;
+  bottom: 66px;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, 48px);
+  gap: 6px;
+  align-content: end;
+}
+#relics:empty { display: none; }
+.relic {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  min-height: 48px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #c4a574;
+  transition: transform 160ms ease, filter 160ms ease;
+}
+.relic img {
+  display: block;
+  width: 48px;
+  height: 48px;
+  pointer-events: none;
+  filter: drop-shadow(0 5px 3px rgba(5, 2, 3, 0.85)) drop-shadow(0 1px 0 rgba(5, 2, 3, 0.9));
+}
+.relic .ph {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #8a7048;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #3a2428, #14080c 70%);
+  box-shadow: 0 5px 3px rgba(5, 2, 3, 0.85);
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+.relic:hover, .relic:focus-visible { transform: translateY(-3px); border: 0; }
+.relic:focus-visible { outline: 2px solid #c4a574; outline-offset: 3px; }
+.relic.usable { cursor: pointer; }
+.relic.usable::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid #c4a574;
+  box-shadow: 0 0 10px #8a7048;
+  pointer-events: none;
+}
+.relic.spent { filter: grayscale(1); }
+.relic.spent img, .relic.spent .ph { opacity: 0.5; }
+.relic.passive { cursor: help; }
+.relic:disabled { opacity: 1; }
+.relic.used { animation: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .relic.usable::after { animation: pulse 1.8s ease-in-out infinite; }
+  .relic.fired { animation: fire 700ms ease-out; }
+  .relic.arrive { animation: arrive 600ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+}
+@keyframes fire {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-8px) scale(1.18); filter: drop-shadow(0 0 12px #c4a574); }
+  100% { transform: none; }
+}
+@keyframes arrive {
+  from { opacity: 0; transform: translateY(-40px) scale(1.5); }
+  to { opacity: 1; transform: none; }
+}
+
+#relic-tip {
+  position: fixed;
+  z-index: 70;
+  width: max-content;
+  max-width: 240px;
+  padding: 8px 12px;
+  border: 1px solid #8a7048;
+  border-radius: 4px;
+  background: #1a1014;
+  box-shadow: 0 10px 20px rgba(5, 2, 3, 0.8);
+  pointer-events: none;
+}
+#relic-tip .name {
+  margin: 0 0 2px;
+  color: #c4a574;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+#relic-tip .effect { margin: 0; font-size: 1rem; line-height: 1.25; }
+
+/* ---- the Bite: a card you have paid for, to keep or to burn ---- */
+#player-rail { position: relative; }
+#bite-slot {
+  position: absolute;
+  right: 4%;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#bite-slot:empty { display: none; }
+#bite-slot .card { box-shadow: 0 0 0 1px #9b2331, 0 0 22px #9b2331, 0 12px 16px rgba(5, 2, 3, 0.55); }
+#bite-slot .caption {
+  margin: 4px 0 0;
+  color: #e8806f;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+#burned {
+  position: absolute;
+  left: 4%;
+  top: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  opacity: 0.8;
+  --card-w: 40px;
+  --card-h: 57px;
+  --card-overlap: 14px;
+  filter: grayscale(0.6);
+}
+#burned[hidden] { display: none; }
+#burned .card { border-style: dashed; }
+#burned .caption {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin: 3px 0 0;
+  color: #a89080;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+#bite-choice:not([hidden]) {
+  display: flex;
+  justify-content: center;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 6px 10px 4px;
+  border-radius: 10px;
+  background: #1a1014;
+  box-shadow: inset 0 1px 0 #3a2428, 0 0 0 1px #8e2f3a;
+}
+#actions button .cost { margin-left: 6px; color: #e8806f; }
+
+/* ---- between hands, and the end of an evening ---- */
+#record {
+  flex-basis: 100%;
+  margin: 2px 0 4px;
+  color: #c9b8a0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+#record:empty { display: none; }
+#record.best { color: #c4a574; }
+
+#settings {
+  margin: 0 0 0 auto;
+  color: #c9b8a0;
+  background: transparent;
+  letter-spacing: 0.06em;
+}
+#settings + #mute { margin-left: 0; }
+#settings-panel {
+  position: absolute;
+  right: 16px;
+  top: 52px;
+  z-index: 30;
+  width: 260px;
+  padding: 10px 14px 6px;
+  border: 1px solid #8a7048;
+  border-radius: 4px;
+  background: #1a1014;
+  box-shadow: 0 14px 28px rgba(5, 2, 3, 0.85);
+}
+#settings-panel p {
+  margin: 0 0 6px;
+  color: #c9b8a0;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+#forget[data-armed="true"] { border-color: #9b2331; color: #e8806f; }
+#parlor { position: relative; }
+
+/* ---- choosing a relic ---- */
+#pick:not([hidden]) {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px;
+  background: rgba(5, 2, 3, 0.82);
+}
+#pick h2 {
+  margin: 0;
+  color: #c4a574;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+#pick-sub { margin: 0 0 12px; max-width: 460px; text-align: center; font-style: italic; }
+#pick-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.relic-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 200px;
+  margin: 0;
+  padding: 14px 12px 12px;
+  border: 1px solid #8a7048;
+  border-radius: 6px;
+  background: #1a1014;
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: var(--serif);
+  text-align: center;
+}
+.relic-card:hover, .relic-card:focus-visible { border-color: #c4a574; background: #2a1218; }
+.relic-card img, .relic-card .ph { width: 88px; height: 88px; margin-bottom: 6px; }
+.relic-card img { filter: drop-shadow(0 6px 4px rgba(5, 2, 3, 0.85)); }
+.relic-card .ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #8a7048;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #3a2428, #14080c 70%);
+  font-size: 2rem;
+  color: #c4a574;
+}
+.relic-card .name {
+  color: #c4a574;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.relic-card .effect { margin-top: 4px; font-size: 1.05rem; line-height: 1.25; }
+.relic-card .num { margin-top: 6px; color: #a89080; font-family: var(--mono); font-size: 0.72rem; }
+@media (prefers-reduced-motion: no-preference) {
+  #pick:not([hidden]) { animation: pick-in 500ms ease-out 700ms backwards; }
+}
+@keyframes pick-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* Portrait moods fade rather than cut. */
+#lord-portrait { transition: opacity 240ms ease; }
+#lord-frame[data-portrait="empty"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 38%, #3a2428 0%, #14080c 40%, #050203 72%);
+}
+
+@media (min-width: 900px) {
+  #relics { left: 4px; }
+  #hint { max-width: 270px; }
+}
 
 @media (max-width: 640px) {
-  #manor { padding: 12px 72px 16px 12px; }
-  #cup { right: 4px; bottom: 12px; width: 60px; }
-  #vial { height: 110px; }
-  #blood, #pending-bet { width: 60px; font-size: 0.62rem; }
-  #door { top: 14px; right: 22px; height: 64px; }
-  body[data-room="departure"] #door { right: auto; left: 8px; }
-  body[data-room="cellar"] #door { height: 120px; bottom: 12px; }
-  #felt { border-radius: 120px; min-height: 480px; padding: 14px 10px; }
-  .card { width: 64px; height: 96px; margin: 0 -14px; }
-  #candles { gap: 36px; }
-  #lord-frame { width: 132px; height: 176px; }
-  #far { padding-top: 96px; }
+  /* The action bar and the relic row travel together at the thumb. */
+  #bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 6;
+    margin: 6px -4px 0;
+    padding: 4px 4px 4px;
+    background: linear-gradient(180deg, rgba(20, 8, 12, 0), rgba(20, 8, 12, 0.95) 24%);
+  }
+  #controls { position: static; margin: 0; padding: 0; background: none; }
+  #relics {
+    position: static;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 0 2px;
+  }
+  #relics:empty { display: none; }
+  #bite-slot { right: 2%; }
+  #burned { left: 2%; }
+  #settings-panel { right: 8px; top: 46px; }
+  #settings { padding: 8px 8px; }
+  #hint { font-size: 0.9rem; }
+  #candles { width: 100%; max-width: 260px; gap: 8px; }
+  #actions button { padding: 8px 2px; }
+  .relic-card { width: 100%; max-width: 300px; flex-direction: row; text-align: left; gap: 12px; padding: 10px 12px; }
+  .relic-card img, .relic-card .ph { width: 64px; height: 64px; flex: none; margin: 0; }
+  #pick-choices { flex-direction: column; flex-wrap: nowrap; width: 100%; align-items: center; gap: 8px; }
+}
+
+#ledger .why { display: block; color: #a89080; font-size: 0.72rem; }
+
+@media (min-width: 900px) {
+  #candles { width: 100px; row-gap: 24px; gap: 24px 10px; min-height: 56px; }
+}
+
+@media (min-width: 641px) {
+  #actions:not([hidden]), #betting:not([hidden]), #between:not([hidden]), #bite-choice:not([hidden]) { max-width: 640px; }
+  #actions button { padding: 8px 12px; }
+}
+#bite-slot { flex-direction: column-reverse; }
+#bite-slot .caption { margin: 0 0 4px; }
+
+@media (max-width: 640px) {
+  #bite-slot {
+    position: static;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 6px;
+    --card-w: 52px;
+    --card-h: 74px;
+  }
+  #bite-slot .caption { margin: 0; max-width: 8em; text-align: left; }
+  #burned { position: static; justify-content: center; margin-top: 4px; }
+  #burned .caption { position: static; margin: 0 0 0 8px; align-self: center; }
+}
+
+@media (max-width: 640px) {
+  #topline { letter-spacing: 0.02em; }
+  #quota { white-space: nowrap; order: 2; }
+  #ledger .why { display: none; }
+  #lord-frame { width: 92px; height: 124px; }
+  #felt { gap: 4px; }
+  #far #plate { margin-bottom: 2px; }
+  #stake { min-height: 12px; margin: 0; }
+  #controls { min-height: 52px; }
+}
+
+@media (max-width: 640px) {
+  #bite-slot { scroll-margin-bottom: 150px; }
+  #bar[data-phase="bite"] #relics { display: none; }
+}
+
+/* ======== stage 2b polish ======== */
+
+/* The dawn clock is one row, never wrapped. A burned candle stays as a stub. */
+#candles {
+  flex-wrap: nowrap;
+  align-content: normal;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  width: auto;
+  max-width: 100%;
+  height: 40px;
+  min-height: 0;
+  margin: 6px auto 0;
+}
+.candle.stub {
+  height: 11px;
+  background: linear-gradient(180deg, #e0cfb2 0, #e0cfb2 2px, #9a8268 2px, #7a6450 100%);
+  border-radius: 3px 3px 0 0;
+  box-shadow: 1px 0 0 rgba(224, 207, 178, 0.35);
+}
+.candle.stub::before {
+  top: -3px;
+  left: 2px;
+  width: 2px;
+  height: 3px;
+  background: #050203;
+  opacity: 1;
+  animation: none;
+}
+.candle.stub.snuffed::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: -12px;
+  width: 3px;
+  height: 10px;
+  border-radius: 50%;
+  background: #a89080;
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .candle.stub.snuffed::after { animation: smoke 1.2s ease-out; }
+}
+@media (min-width: 900px) {
+  #candles { width: auto; gap: 10px; min-height: 0; justify-self: end; }
+}
+@media (max-width: 640px) {
+  #candles { width: auto; max-width: 100%; gap: 8px; height: 34px; }
+}
+
+/* The blood count: the number and its unit on one line, the quota beneath. */
+#cup { width: 90px; }
+#blood {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px;
+  width: 90px;
+  white-space: nowrap;
+}
+#blood .count { display: inline; font-size: 1.6rem; line-height: 1.1; }
+#blood .unit { font-size: 0.8rem; }
+@media (max-width: 640px) {
+  #cup { width: auto; }
+  #blood { width: auto; gap: 4px; }
+  #blood .count { font-size: 1.05rem; margin: 0; }
+  #blood .unit { font-size: 0.78rem; }
+}
+
+/* Settings and Sound: the same icon buttons at every width. */
+#settings .ico, #mute .ico { display: none; }
+#mute .cut { display: none; }
+#mute[data-on="false"] .wave { display: none; }
+#mute[data-on="false"] .cut { display: inline; }
+#settings, #mute {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border-color: transparent;
+}
+#settings { margin-left: auto; }
+#settings + #mute { margin-left: 0; }
+#settings .ico, #mute .ico { display: block; }
+#settings .lbl, #mute .lbl { display: none; }
+
+/* The stake at every width: − [2 drops] +, Deal first, Leave as a quiet link. */
+#bet-down .sym, #bet-up .sym { display: none; }
+#pending-bet { white-space: nowrap; }
+#betting:not([hidden]) {
+  display: grid;
+  grid-template-columns: 52px 1fr 52px;
+  grid-template-areas: "minus stake plus" "deal deal deal" "leave leave leave";
+  gap: 4px 8px;
+  align-items: center;
+  padding: 8px 10px 2px;
+}
+#bet-down { grid-area: minus; }
+#bet-up { grid-area: plus; }
+#bet-down, #bet-up { width: 52px; margin: 0; padding: 0; font-size: 1.5rem; }
+#bet-down .lbl, #bet-up .lbl { display: none; }
+#bet-down .sym, #bet-up .sym { display: inline; }
+#pending-bet {
+  grid-area: stake;
+  margin: 0;
+  min-width: 0;
+  color: #f3e6d0;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+#pending-bet .k { display: none; }
+#betting #deal {
+  grid-area: deal;
+  width: 100%;
+  margin: 0;
+  background: #9b2331;
+  border-color: #c4a574;
+  color: #f3e6d0;
+  font-size: 0.9rem;
+  letter-spacing: 0.28em;
+}
+#betting #deal:disabled { background: #3a151c; }
+#betting #withdraw {
+  grid-area: leave;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #a89080;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+
+/* One stake control at every width. */
+#betting:not([hidden]) {
+  box-sizing: border-box;
+  width: min(100%, 380px);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 8px 12px 4px;
+}
+#betting #bet-down, #betting #bet-up { min-height: 44px; }
+#betting #deal { min-height: 46px; }
+#betting #withdraw { min-height: 36px; }
+#betting #deal .key { margin-left: 10px; letter-spacing: 0.05em; }
+/* Relics on a short arc that follows the felt's corner (laptop). */
+@media (min-width: 900px) {
+  #relics {
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 0;
+  }
+  #relics .relic { position: absolute; }
+  #relics .relic:nth-child(1) { left: -15px; bottom: 191px; }
+  #relics .relic:nth-child(2) { left: -8px; bottom: 140px; }
+  #relics .relic:nth-child(3) { left: 13px; bottom: 92px; }
+  #relics .relic:nth-child(4) { left: 46px; bottom: 52px; }
+  #relics .relic:nth-child(5) { left: 88px; bottom: 22px; }
+  #relics .relic:nth-child(6) { left: 137px; bottom: 5px; }
+  #actions:not([hidden]), #betting:not([hidden]), #between:not([hidden]), #bite-choice:not([hidden]) { max-width: 600px; }
+}
+@media (max-width: 640px) {
+  #bet-down .sym, #bet-up .sym { font-size: 1.7rem; line-height: 1; font-family: var(--mono, monospace); }
 }

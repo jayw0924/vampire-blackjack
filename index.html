@@ -3,69 +3,127 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lord Vesper's Table</title>
+  <title>Vigil</title>
+  <meta name="description" content="A vampire's blackjack. The stake is your blood. The dealer is Lord Vesper.">
+  <meta name="theme-color" content="#050203">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Vigil">
+  <meta property="og:title" content="Vigil">
+  <meta property="og:description" content="A vampire's blackjack. The stake is your blood. The dealer is Lord Vesper.">
+  <meta property="og:url" content="https://vampire-blackjack.vercel.app/">
+  <meta property="og:image" content="https://vampire-blackjack.vercel.app/assets/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Vigil">
+  <meta name="twitter:description" content="A vampire's blackjack. The stake is your blood. The dealer is Lord Vesper.">
+  <meta name="twitter:image" content="https://vampire-blackjack.vercel.app/assets/og.jpg">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preload" href="assets/fonts/cormorant-garamond-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="src/fonts.css">
   <link rel="stylesheet" href="src/style.css">
 </head>
 <body>
   <main id="parlor">
-    <header>
-      <p class="eyebrow">Castle Vesper · The Crimson Parlor</p>
-      <h1>Lord Vesper's Table</h1>
-      <button id="mute" type="button">Let the room speak</button>
-    </header>
     <div id="manor" data-candles="3">
-      <div id="door" aria-hidden="true"></div>
-      <p id="room"></p>
-      <p id="story"></p>
+      <header id="frame-top">
+        <h1>Vigil</h1>
+        <p class="eyebrow">Castle Vesper · The Crimson Parlor</p>
+        <button id="settings" type="button" aria-label="Settings" aria-expanded="false" aria-controls="settings-panel"><svg class="ico" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="9" cy="7" r="2.2" fill="#1a1014" stroke="currentColor" stroke-width="1.6"/><circle cx="15" cy="12" r="2.2" fill="#1a1014" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="17" r="2.2" fill="#1a1014" stroke="currentColor" stroke-width="1.6"/></svg><span class="lbl">Settings</span></button>
+        <button id="mute" type="button" aria-label="Sound off" aria-pressed="false"><svg class="ico" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path class="wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path class="cut" d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="lbl">Sound off</span></button>
+      </header>
+      <section id="settings-panel" aria-label="Settings" hidden>
+        <p id="settings-record"></p>
+        <button id="forget" type="button">Forget my record</button>
+        <p id="forget-note" role="status"></p>
+      </section>
+      <div id="topline">
+        <p id="floor-name">Floor I · The Steward</p>
+        <p id="dawn-left"></p>
+        <div id="cup">
+          <div id="vial" aria-label="Blood remaining"></div>
+          <p id="blood"></p>
+          <p id="quota"></p>
+          <p id="ledger"></p>
+        </div>
+      </div>
+      <p id="room" class="visually-hidden"></p>
+      <div id="backdrop" aria-hidden="true"></div>
       <div id="felt">
         <div id="far">
-          <div id="candles" aria-hidden="true"></div>
           <figure id="lord">
             <div id="lord-frame" data-portrait="set">
-              <img id="lord-portrait" src="assets/lord.png" alt="">
+              <img id="lord-portrait" data-fallback="assets/lord.webp" width="512" height="768" alt="">
             </div>
-            <figcaption class="visually-hidden">Lord Vesper</figcaption>
+            <figcaption id="lord-caption" class="visually-hidden">Lord Vesper</figcaption>
           </figure>
-          <p id="message" role="status"></p>
-          <p id="remark"></p>
-          <section id="dealer-rail" aria-label="Lord Vesper">
-            <h2 class="visually-hidden">Lord Vesper</h2>
-            <div id="dealer-cards" class="cards"></div>
-            <p id="dealer-value"></p>
+          <div id="candles" aria-hidden="true"></div>
+          <div id="plate">
+            <p id="plate-name" aria-hidden="true">The Steward</p>
+            <p id="rule"></p>
+            <p id="message" role="status"></p>
+            <p id="remark"></p>
+            <p id="story"></p>
+            <p id="hint"></p>
+          </div>
+          <section id="dealer-rail" aria-label="The dealer">
+            <h2 id="dealer-title" class="visually-hidden">The Steward</h2>
+            <div class="cardrow">
+              <div id="dealer-cards" class="cards"></div>
+              <p id="dealer-value"></p>
+            </div>
           </section>
         </div>
         <div id="stake" aria-hidden="true"></div>
+        <p id="stamp" aria-hidden="true"></p>
         <div id="near">
           <section id="player-rail" aria-label="You">
             <h2 class="visually-hidden">You</h2>
             <div id="player-hands"></div>
+            <div id="burned" aria-label="Burned cards" hidden></div>
+            <div id="bite-slot" aria-live="polite"></div>
           </section>
-          <div id="betting">
-            <button id="bet-down" type="button">Lower stake</button>
-            <button id="bet-up" type="button">Raise stake</button>
-            <button id="deal" type="button">Deal</button>
-            <button id="withdraw" type="button">Leave the table</button>
+          <div id="bar">
+          <div id="relics" role="group" aria-label="Relics"></div>
+          <div id="controls">
+            <div id="betting">
+              <button id="bet-down" type="button" aria-label="Lower stake" aria-keyshortcuts="-" title="Lower stake (-)"><span class="lbl">Lower stake</span><span class="sym" aria-hidden="true">−</span></button>
+              <p id="pending-bet"></p>
+              <button id="bet-up" type="button" aria-label="Raise stake" aria-keyshortcuts="+" title="Raise stake (+)"><span class="lbl">Raise stake</span><span class="sym" aria-hidden="true">+</span></button>
+              <button id="deal" type="button" aria-keyshortcuts="Space">Deal<span class="key" aria-hidden="true">Space</span></button>
+              <button id="withdraw" type="button">Leave the table</button>
+            </div>
+            <div id="actions">
+              <button id="hit" type="button" aria-keyshortcuts="H">Hit<span class="key" aria-hidden="true">H</span></button>
+              <button id="stand" type="button" aria-keyshortcuts="S">Stand<span class="key" aria-hidden="true">S</span></button>
+              <button id="double" type="button" aria-keyshortcuts="D">Double<span class="key" aria-hidden="true">D</span></button>
+              <button id="split" type="button">Split</button>
+              <button id="bite" type="button" aria-keyshortcuts="B">Bite<span class="key" aria-hidden="true">B</span></button>
+            </div>
+            <div id="bite-choice" hidden>
+              <button id="keep" type="button" aria-keyshortcuts="K">Keep<span class="key" aria-hidden="true">K</span></button>
+              <button id="burn" type="button" aria-keyshortcuts="X">Burn<span class="key" aria-hidden="true">X</span></button>
+            </div>
+            <div id="between">
+              <button id="continue" type="button" aria-keyshortcuts="Space">Next hand<span class="key" aria-hidden="true">Space</span></button>
+              <button id="new-evening" type="button" aria-keyshortcuts="Space">Another evening<span class="key" aria-hidden="true">Space</span></button>
+              <p id="record"></p>
+            </div>
           </div>
-          <div id="actions">
-            <button id="hit" type="button">Hit</button>
-            <button id="stand" type="button">Stand</button>
-            <button id="double" type="button">Double</button>
-            <button id="split" type="button">Split</button>
-          </div>
-          <div id="between">
-            <button id="continue" type="button">Next hand</button>
-            <button id="new-evening" type="button">Another evening</button>
           </div>
         </div>
       </div>
-      <div id="cup">
-        <div id="vial" aria-label="Blood remaining"></div>
-        <p id="blood"></p>
-        <p id="pending-bet"></p>
-      </div>
     </div>
-    <p id="ledger"></p>
   </main>
+  <div id="relic-tip" role="tooltip" hidden><p class="name"></p><p class="effect"></p></div>
+  <section id="pick" role="dialog" aria-modal="true" aria-labelledby="pick-title" hidden>
+    <h2 id="pick-title">Choose a relic</h2>
+    <p id="pick-sub"></p>
+    <div id="pick-choices"></div>
+  </section>
+  <div id="vignette" aria-hidden="true"></div>
+  <div id="grain" aria-hidden="true"></div>
   <script type="module" src="src/ui.js"></script>
 </body>
 </html>
