@@ -21,6 +21,8 @@ export const BOSSES = {
     plate: 'The Steward',
     floorName: 'Floor I · The Steward',
     portrait: 'steward',
+    // Living portrait (src/portrait): where the face, the neck pivot, the chest and the blink atlas sit, in uv of the 1024x1536 art.
+    portraitFx: {epithet: 'Keeper of the house', blink: true, head: {c: [0.49, 0.235], r: [0.22, 0.17]}, pivot: [0.49, 0.46], tiltWeight: [0.4, 0.52], breath: [0.38, 0.62], uplightFade: [0.58, 0.68], eyes: {rect: [490, 314, 216, 70], near: [0.5254, 0.2253], far: [0.6553, 0.235]}},
     ruleText: '',
     core: {},
     lines: {
@@ -63,6 +65,8 @@ export const BOSSES = {
     plate: 'The Lamia',
     floorName: 'Floor II · The Lamia',
     portrait: 'lamia',
+    // Living portrait (src/portrait): where the face, the neck pivot, the chest and the blink atlas sit, in uv of the 1024x1536 art.
+    portraitFx: {epithet: 'She hides nothing', blink: true, head: {c: [0.48, 0.25], r: [0.23, 0.19]}, pivot: [0.48, 0.47], tiltWeight: [0.39, 0.5], breath: [0.4, 0.62], uplightFade: [0.58, 0.68], eyes: {rect: [458, 356, 278, 70], near: [0.5088, 0.248], far: [0.6719, 0.2598]}},
     ruleText: 'Her cards lie face up. Each Hit costs 1 blood.',
     core: { holeUp: true, hitCost: 1 },
     lines: {
@@ -105,6 +109,8 @@ export const BOSSES = {
     plate: 'Lord Vesper',
     floorName: 'Floor III · Lord Vesper',
     portrait: 'vesper',
+    // Living portrait (src/portrait): where the face, the neck pivot, the chest and the blink atlas sit, in uv of the 1024x1536 art.
+    portraitFx: {epithet: 'The host', blink: true, head: {c: [0.52, 0.3], r: [0.22, 0.19]}, pivot: [0.5, 0.47], tiltWeight: [0.385, 0.5], breath: [0.36, 0.62], uplightFade: [0.6, 0.7], eyes: {rect: [462, 362, 240, 84], near: [0.5054, 0.2539], far: [0.6475, 0.2734]}},
     ruleText: 'He stands on 18. Ties go to the house.',
     core: { dealerStandOn: 18, tiesToHouse: true },
     lines: {

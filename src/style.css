@@ -1324,25 +1324,6 @@ body[data-room="cellar"] #vignette {
 #betting #deal { min-height: 46px; }
 #betting #withdraw { min-height: 36px; }
 #betting #deal .key { margin-left: 10px; letter-spacing: 0.05em; }
-/* Relics on a short arc that follows the felt's corner (laptop). */
-@media (min-width: 900px) {
-  #relics {
-    display: block;
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 0;
-    height: 0;
-  }
-  #relics .relic { position: absolute; }
-  #relics .relic:nth-child(1) { left: -15px; bottom: 191px; }
-  #relics .relic:nth-child(2) { left: -8px; bottom: 140px; }
-  #relics .relic:nth-child(3) { left: 13px; bottom: 92px; }
-  #relics .relic:nth-child(4) { left: 46px; bottom: 52px; }
-  #relics .relic:nth-child(5) { left: 88px; bottom: 22px; }
-  #relics .relic:nth-child(6) { left: 137px; bottom: 5px; }
-  #actions:not([hidden]), #betting:not([hidden]), #between:not([hidden]), #bite-choice:not([hidden]) { max-width: 600px; }
-}
 @media (max-width: 640px) {
   #bet-down .sym, #bet-up .sym { font-size: 1.7rem; line-height: 1; font-family: var(--mono, monospace); }
 }
