@@ -244,3 +244,13 @@ test('reduced motion has a CSS fallback too: no candle flame animation, no lean 
   assert.match(css, /prefers-reduced-motion: reduce/);
   assert.match(css, /#lean \{[^}]*transition: none/);
 });
+
+test('phone action buttons keep even inner padding around the cost, only inside phone media queries', () => {
+  const css = fs.readFileSync('src/dealers.css', 'utf8');
+  const phone = css.slice(css.indexOf('@media (max-width: 640px)'), css.indexOf('@media (max-width: 380px)'));
+  assert.match(phone, /#actions button \{[^}]*flex: 1 1 auto;[^}]*padding: 8px 5px;/);
+  assert.match(phone, /#actions button \.cost \{ margin-left: 3px; \}/);
+  // nothing outside a media query touches the action buttons, so the desktop bar is unchanged
+  const outside = css.replace(/@media[^{]*\{(?:[^{}]*\{[^}]*\})*[^}]*\}/g, '');
+  assert.doesNotMatch(outside, /#actions button/);
+});

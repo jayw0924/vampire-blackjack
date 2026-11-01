@@ -303,6 +303,10 @@ body[data-room] #frame-top {
   #plate #hint { padding-left: 0; font-size: 0.85rem; }
   #felt { border-radius: 200px; padding: 16px 22px 30px; gap: 4px; }
   #bar { position: static; margin: 0; padding: 0; background: none; }
+  /* the cost ("-1") on Hit and Bite gets its own breathing room: buttons size to their label, and the
+     inner padding is even on both sides, so the number never touches the edge. Still one row. */
+  #actions button { flex: 1 1 auto; margin: 3px 1px; padding: 8px 5px; font-size: 0.7rem; letter-spacing: 0.01em; text-align: center; white-space: nowrap; }
+  #actions button .cost { margin-left: 3px; }
   #controls { position: static; margin: 0; padding: 0; background: none; }
   #candles { left: 50%; transform: translateX(-50%); top: 30px; gap: 7px; }
   /* the blood sits under the header, to the right of the floor line: clear of the face and the pendant */
@@ -327,6 +331,12 @@ body[data-room] #frame-top {
   #far { margin-top: 56px; }
   #floor-name { top: 52px; left: 16px; right: auto; letter-spacing: 0.14em; font-size: 0.62rem; }
   #dawn-left { top: 70px; left: 16px; right: auto; letter-spacing: 0.14em; font-size: 0.62rem; }
+}
+
+/* the narrowest phones: same even padding, a touch tighter so the row still holds */
+@media (max-width: 380px) {
+  #actions button { padding: 8px 3px; font-size: 0.66rem; letter-spacing: 0; }
+  #actions button .cost { margin-left: 2px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
