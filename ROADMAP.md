@@ -16,7 +16,7 @@ Scope lock, updated 2026-10-30: the old rule "no second currency, special cards,
 
 Locks that stay:
 
-- The hole card never reaches the page early. The page reads `publicView` only. The staged dealer turn replays what the settled view already shows; it never reads the hidden card.
+- The hole card never reaches the page early. The page reads `runView` only, which is `publicView` plus the run. The staged dealer turn replays what the settled view already shows; it never reads the hidden card.
 - Sound stays off until the player turns on **Sound**.
 - No CDN. No hotlinked images. Fonts, if added, are self-hosted.
 - Game framing only. The stake is blood. No cash-out, no real-money wording, no odds-and-payout marketing.
@@ -25,7 +25,8 @@ Locks that stay:
 ## Locked rules (the blackjack core)
 
 - Start 20 drops. Bet 2, 4, 6, 8, or 10. Blackjack pays 3:2. Dealer stands on soft 17.
-- Win at 40. Drained below 2. Leave only before the deal. These are the single-evening rules. The run layer will wrap them (quota, hand limit) without changing them. The tuning numbers in the direction doc (8 hands, quota 40, Bite at 2 blood) are starting proposals to be tuned by simulation, not decisions.
+- Win at 40. Drained below 2. Leave only before the deal. These are the single-evening rules and `createGame` still plays them by default. The run layer (`src/run.js`) wraps the core through a rules object (`CORE_RULES` in `src/game.js`): `dealerStandOn`, `holeUp`, `hitCost`, `biteEnabled`, `biteCost`, `burnRefund`, `tiesToHouse`, `maxHands`, `autoEnd`, `satedAt`. In a run `autoEnd` is off and the run decides when an evening ends: quota (take the stair), dawn (the hands run out), or drained (below 2).
+- Tuned numbers live in `src/tuning.js` and are measured by `node tools/sim.mjs` (see Stage 2).
 - Hole card stays hidden during the player's turn.
 
 ## Sessions
@@ -47,9 +48,8 @@ Done:
 
 - Felt has a wood rail and a brass hairline. Cards have a bottom edge. Faces stay cream.
 - The night outside the parlor is `#050203`. The name is a gold plaque. Blood sits with the vial.
-- The door is an opening in the stone. It narrows when the parlor draws in, drops with a blood thread in the cellar, and moves left on departure.
 - One pool, driven by candle count, can go out. It is not a fade on the cards or the felt.
-- Portrait is `assets/lord.png` (1024×1536). `object-position` is `center 8%`. In the arch (168×224 on desktop at most, 120×160 on a phone) it trims coat, not face; checked in a browser.
+- Portraits are the Forge set in `assets/art/` (nine, three moods for each of three dealers), loaded through `assets/art/manifest.json`. They have no arch painted in; the arch is a CSS mask, and `object-position` is `center 8%`. `assets/lord.webp` (19KB) is the fallback if the manifest fails; the 1.8MB `assets/lord.png` is no longer loaded.
 
 Still open for the design session:
 
@@ -82,4 +82,34 @@ Stage 1b (review fixes): the header is folded into the frame's top edge, the emp
 
 Keyboard: H hit, S stand, D double, Space deals, moves on, or begins another evening. Tapping the felt (or pressing Space) during the dealer's turn skips to the verdict.
 
-Still to come, in order: the run layer, the dawn clock and hunger tax, Bite, relics, three floors with bosses (Steward, Lamia, Vesper), Vesper reactions with memory, more juice, and a localStorage best floor.
+Everything that was listed as still to come after Stage 1 (the run layer, dawn clock, hunger tax, Bite, relics, three floors with bosses, Vesper's memory, more juice, a best-floor record) is in Stage 2 below.
+
+## Stage 2 (the run) status
+
+Shipped on branch `vigil-run`, stacked on `vigil-quickwins`.
+
+- `src/run.js` wraps the seeded core and does not fork it. A run is three floors; each floor has a hand limit (the dawn clock), a quota to take the stair, and a hunger tax. Reach the quota and you choose a relic and descend; run out of hands and dawn ends the evening; fall below 2 blood and you are drained. Clear Floor III to leave.
+- Core actions added (all pure, all tested): **Bite** (pay blood, draw one card, then Keep it or Burn it, once per hand), `burn`, and a one-time look at the hole card (`arm`/`peek`) for the Silver Mirror. Boss rules live in the core: Lamia deals face up and a Hit costs 1 blood; Vesper stands on 18 and ties go to the house (`tiesToHouse`: a push settles as a loss). Bite costs 1 drop (`tuning.bite`); Burn can refund some of it (`burnRefund`, 0 as shipped).
+- Six relics with hooks `onDeal`, `onBite`, `onBust`, `onWin` (plus `onLoss`, `onFloorStart`, `onRules`): Charon's Obol, Silver Mirror, Lamia's Tooth, Hecate's Key, The Tithe, The Lantern. Relic choices are seeded.
+- Three bosses as data in `src/bosses.js`: lines per event, a short event log in the run (streaks, doubles, busts at low blood, Bite habit, the mirror) that picks his memory lines.
+- `src/meta.js` keeps the deepest floor and escapes in the browser's local store (settings has a two-step "Forget my record"). `src/art.js` loads the Forge art through the manifest; anything the manifest lacks stays a CSS placeholder.
+- Debug and screenshot parameters on the URL (`src/debug.js`; overrides need localhost or `?debug=1`, and never touch the saved record; `?seed=` works anywhere): `?seed=7&floor=3&blood=44&relics=tithe,lantern&hands=4&quota=30`.
+
+Balance: run `node tools/sim.mjs` (`--runs 800` for a quick pass, `--json` for data). The shipped numbers and win rates are in the Stage 2 report; change `src/tuning.js`, rerun the sim, and `tests/sim.test.js` checks the result stays in a fair band.
+
+Open questions for the next stage:
+
+- Vesper "plays one hand ahead" when you are at 6 blood or less moves to phase 2. For the first build his rule is: stands on 18, ties go to the house. The other memory lines are built.
+- Garlic and hawthorn card art is delivered but unused (phase 2, with special cards).
+- Relic count: six is enough to feel the choice; a seventh that changes the dealer rather than you would be more interesting than another number.
+- Special cards (hazards) and the map are still out.
+- Sound: the effects are synthesized and short; real recorded foley would lift it, but not before the loop is settled.
+
+
+## Stage 2b (review fixes, branch `vigil-run`)
+
+- The Steward speaks the Floor I hints in his own voice; later floors show one neutral house-rule line the first time.
+- Balance: Bite costs 1 and now helps the skilled bot (see `review/stage2b/sim.txt`). Floor clear rates fall from I to III for every bot. Tuning: Steward 12 hands, quota 24; Lamia 11 hands, quota 35; Vesper 8 hands, quota 48 with ties to the house.
+- Candles are one row. A burned candle stays as a stub (`candleStates` in `src/render.js`).
+- The vial reads `16 drops` on one line with the quota beneath. On a phone the stake is a `- [2 drops] +` stepper, Deal is the primary button, Leave is a quiet link, and Settings and Sound are 44px icons.
+- On a laptop (900px and up) the relic tokens sit on a short arc that follows the felt's corner.

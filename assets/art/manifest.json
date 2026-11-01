@@ -1,0 +1,285 @@
+[
+ {
+  "id": "steward",
+  "type": "portrait",
+  "variant": "neutral",
+  "files": [
+   "portrait-steward-neutral-512x768.webp",
+   "portrait-steward-neutral-512x768.png"
+  ],
+  "sizes": [
+   "512x768"
+  ],
+  "alt": "The Steward, an elderly vampire in a high-collared coat with a key on a chain, in a three-quarter pose, gaze turned slightly aside.",
+  "decorative": false
+ },
+ {
+  "id": "steward",
+  "type": "portrait",
+  "variant": "amused",
+  "files": [
+   "portrait-steward-amused-512x768.webp",
+   "portrait-steward-amused-512x768.png"
+  ],
+  "sizes": [
+   "512x768"
+  ],
+  "alt": "The Steward, an elderly vampire in a high-collared coat with a key on a chain, with a thin, knowing smile.",
+  "decorative": false
+ },
+ {
+  "id": "steward",
+  "type": "portrait",
+  "variant": "hungry",
+  "files": [
+   "portrait-steward-hungry-512x768.webp",
+   "portrait-steward-hungry-512x768.png"
+  ],
+  "sizes": [
+   "512x768"
+  ],
+  "alt": "The Steward, an elderly vampire in a high-collared coat with a key on a chain, staring straight at the viewer with parted lips.",
+  "decorative": false
+ },
+ {
+  "id": "lamia",
+  "type": "portrait",
+  "variant": "neutral",
+  "files": [
+   "portrait-lamia-neutral-512x768.webp",
+   "portrait-lamia-neutral-512x768.png"
+  ],
+  "sizes": [
+   "512x768"
+  ],
+  "alt": "The Lamia, a pale vampire woman in black velvet with a scaled collar and a gold serpent brooch, in a three-quarter pose, gaze turned slightly aside.",
+  "decorative": false
+ },
+ {
+  "id": "lamia",
+  "type": "portrait",
+  "variant": "amused",
+  "files": [
+   "portrait-lamia-amused-512x768.webp",
+   "portrait-lamia-amused-512x768.png"
+  ],
+  "sizes": [
+   "512x768"
+  ],
+  "alt": "The Lamia, a pale vampire woman in black velvet with a scaled collar and a gold serpent brooch, with a thin, knowing smile.",
+  "decorative": false
+ },
+ {
+  "id": "lamia",
+  "type": "portrait",
+  "variant": "hungry",
+  "files": [
+   "portrait-lamia-hungry-512x768.webp",
+   "portrait-lamia-hungry-512x768.png"
+  ],
+  "sizes": [
+   "512x768"
+  ],
+  "alt": "The Lamia, a pale vampire woman in black velvet with a scaled collar and a gold serpent brooch, staring straight at the viewer with parted lips and faint gold-green slit pupils.",
+  "decorative": false
+ },
+ {
+  "id": "vesper",
+  "type": "portrait",
+  "variant": "neutral",
+  "files": [
+   "portrait-vesper-neutral-512x768.webp",
+   "portrait-vesper-neutral-512x768.png"
+  ],
+  "sizes": [
+   "512x768"
+  ],
+  "alt": "Lord Vesper, a dark-haired vampire in a high-collared coat with a garnet brooch, in a three-quarter pose, gaze turned slightly aside.",
+  "decorative": false
+ },
+ {
+  "id": "vesper",
+  "type": "portrait",
+  "variant": "amused",
+  "files": [
+   "portrait-vesper-amused-512x768.webp",
+   "portrait-vesper-amused-512x768.png"
+  ],
+  "sizes": [
+   "512x768"
+  ],
+  "alt": "Lord Vesper, a dark-haired vampire in a high-collared coat with a garnet brooch, with a knowing smile, one corner of his mouth lifted.",
+  "decorative": false
+ },
+ {
+  "id": "vesper",
+  "type": "portrait",
+  "variant": "hungry",
+  "files": [
+   "portrait-vesper-hungry-512x768.webp",
+   "portrait-vesper-hungry-512x768.png"
+  ],
+  "sizes": [
+   "512x768"
+  ],
+  "alt": "Lord Vesper, a dark-haired vampire in a high-collared coat with a garnet brooch, staring straight at the viewer with parted lips.",
+  "decorative": false
+ },
+ {
+  "id": "charons-obol",
+  "type": "relic",
+  "files": [
+   "relic-charons-obol-48.webp",
+   "relic-charons-obol-48.png",
+   "relic-charons-obol-96.webp",
+   "relic-charons-obol-96.png",
+   "relic-charons-obol-200.webp"
+  ],
+  "sizes": [
+   "48",
+   "96",
+   "200"
+  ],
+  "alt": "Charon's Obol, a worn dark-bronze coin with a broad-bladed oar",
+  "decorative": false
+ },
+ {
+  "id": "silver-mirror",
+  "type": "relic",
+  "files": [
+   "relic-silver-mirror-48.webp",
+   "relic-silver-mirror-48.png",
+   "relic-silver-mirror-96.webp",
+   "relic-silver-mirror-96.png",
+   "relic-silver-mirror-200.webp"
+  ],
+  "sizes": [
+   "48",
+   "96",
+   "200"
+  ],
+  "alt": "Silver Mirror, an ornate silver hand mirror with a pale face",
+  "decorative": false
+ },
+ {
+  "id": "lamias-tooth",
+  "type": "relic",
+  "files": [
+   "relic-lamias-tooth-48.webp",
+   "relic-lamias-tooth-48.png",
+   "relic-lamias-tooth-96.webp",
+   "relic-lamias-tooth-96.png",
+   "relic-lamias-tooth-200.webp"
+  ],
+  "sizes": [
+   "48",
+   "96",
+   "200"
+  ],
+  "alt": "Lamia's Tooth, a slim curved fang with a bronze band, a tapered root and a blood-stained tip",
+  "decorative": false
+ },
+ {
+  "id": "hecates-key",
+  "type": "relic",
+  "files": [
+   "relic-hecates-key-48.webp",
+   "relic-hecates-key-48.png",
+   "relic-hecates-key-96.webp",
+   "relic-hecates-key-96.png",
+   "relic-hecates-key-200.webp"
+  ],
+  "sizes": [
+   "48",
+   "96",
+   "200"
+  ],
+  "alt": "Hecate's Key, a blackened iron key with a three-lobed bow",
+  "decorative": false
+ },
+ {
+  "id": "tithe",
+  "type": "relic",
+  "files": [
+   "relic-tithe-48.webp",
+   "relic-tithe-48.png",
+   "relic-tithe-96.webp",
+   "relic-tithe-96.png",
+   "relic-tithe-200.webp"
+  ],
+  "sizes": [
+   "48",
+   "96",
+   "200"
+  ],
+  "alt": "The Tithe, an iron chalice holding gold coins in blood",
+  "decorative": false
+ },
+ {
+  "id": "lantern",
+  "type": "relic",
+  "files": [
+   "relic-lantern-48.webp",
+   "relic-lantern-48.png",
+   "relic-lantern-96.webp",
+   "relic-lantern-96.png",
+   "relic-lantern-200.webp"
+  ],
+  "sizes": [
+   "48",
+   "96",
+   "200"
+  ],
+  "alt": "The Lantern, a small brass lantern with a lit candle",
+  "decorative": false
+ },
+ {
+  "id": "back",
+  "type": "card",
+  "files": [
+   "card-back-250x350.webp",
+   "card-back-250x350.png"
+  ],
+  "sizes": [
+   "250x350"
+  ],
+  "alt": "Card back with a gold serpent ring around a drop of blood on oxblood damask",
+  "decorative": false
+ },
+ {
+  "id": "floor-1",
+  "type": "backdrop",
+  "files": [
+   "bg-floor-1-1920x1080.webp"
+  ],
+  "sizes": [
+   "1920x1080"
+  ],
+  "alt": "",
+  "decorative": true
+ },
+ {
+  "id": "floor-2",
+  "type": "backdrop",
+  "files": [
+   "bg-floor-2-1920x1080.webp"
+  ],
+  "sizes": [
+   "1920x1080"
+  ],
+  "alt": "",
+  "decorative": true
+ },
+ {
+  "id": "floor-3",
+  "type": "backdrop",
+  "files": [
+   "bg-floor-3-1920x1080.webp"
+  ],
+  "sizes": [
+   "1920x1080"
+  ],
+  "alt": "",
+  "decorative": true
+ }
+]

@@ -81,3 +81,43 @@ test('a bust never makes the dealer draw, but the hole card is still turned', ()
   const steps = stageSteps(view, present(publicView(start)), 0);
   assert.equal(steps.length, 3);
 });
+
+import { act, createRun, runView } from '../src/run.js';
+import { createGame as newGame } from '../src/game.js';
+
+function lamiaTable(shoe) {
+  const run = createRun({ seed: 3, relics: [], floor: 2, blood: 30 });
+  const game = newGame({ shoe: cards(...shoe), rules: run.game.rules });
+  return act({ ...run, game: { ...game, blood: 30, pendingBet: 2 } }, 'deal');
+}
+
+test('a face-up hole card is not turned over again for the dealer scene', () => {
+  const run = act(lamiaTable(['10S', '9H', '10D', '7C', '2S']), 'stand');
+  const view = present(runView(run));
+  const steps = stageSteps(view, null, 0);
+  assert.equal(view.holeKnown, true);
+  assert.equal(steps[0].view.dealerCards.some((c) => c.hidden), false);
+  assert.equal(steps[0].view.dealerValueLabel, '16');
+});
+
+test('the dealer scene reads the table\'s stand rule, not 17', () => {
+  const run = createRun({ seed: 3, relics: [], floor: 3, blood: 40 });
+  const game = newGame({ shoe: cards('10S', '10H', '8D', '7C', '2S'), rules: run.game.rules });
+  let r = act({ ...run, game: { ...game, blood: 40, pendingBet: 2 } }, 'deal');
+  r = act(r, 'stand');
+  const view = present(runView(r));
+  assert.equal(view.standOn, 18);
+  assert.equal(needsStaging('player', view), true);
+  assert.equal(needsStaging('bite', view), true);
+  const last = stageSteps(view, null, 0).at(-2).view;
+  assert.equal(last.message.length > 0, true);
+});
+
+test('the scene keeps the candle count the player last saw until the verdict', () => {
+  const run = act(lamiaTable(['10S', '9H', '10D', '7C', '2S']), 'stand');
+  const view = present(runView(run));
+  const before = { ...view, candlesLit: view.candlesLit + 1 };
+  const steps = stageSteps(view, before, 0);
+  assert.equal(steps[0].view.candlesLit, before.candlesLit);
+  assert.equal(steps.at(-1).view.candlesLit, view.candlesLit);
+});
