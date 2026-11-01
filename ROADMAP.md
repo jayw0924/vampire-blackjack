@@ -113,3 +113,11 @@ Open questions for the next stage:
 - Candles are one row. A burned candle stays as a stub (`candleStates` in `src/render.js`).
 - The vial reads `16 drops` on one line with the quota beneath. On a phone the stake is a `- [2 drops] +` stepper, Deal is the primary button, Leave is a quiet link, and Settings and Sound are 44px icons.
 - On a laptop (900px and up) the relic tokens sit on a short arc that follows the felt's corner.
+
+
+## Living dealers (branch `vigil-dealers`)
+
+- The dealer sits big behind the table in a room lit by candles and an off-screen key light (no lamp). The table is the full oval. Layout lives in `src/dealers.css`, which re-seats the existing elements; `#lord`, `#plate`, `#felt` keep their ids.
+- `src/portrait/state.js` is the pure part (phase to portrait state, tween targets, render mode, effects per mode). `src/portrait/portrait.js` is the WebGL driver and `glsl.js` the shader (ported from the v3 handoff).
+- `src/layout.js` seats the relic tokens on the felt's corner arc.
+- Moods (hungry, amused) still drive the still painting when WebGL is off; with WebGL the neutral painting is used.

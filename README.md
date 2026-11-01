@@ -34,3 +34,11 @@ node tools/sim.mjs          # balance simulation: win rates per floor
 ```
 
 For a repeatable table, `?seed=7` works anywhere. The other parameters (floor, blood, relics, hands, quota) are debug-only: they work on localhost or with `?debug=1`, and such a rehearsal table never reads or writes the saved record. Example: `?seed=7&floor=3&blood=44&relics=tithe,lantern&hands=4&quota=30`.
+
+## Living dealers
+
+Each dealer's painting is a 2.5D portrait drawn by a small WebGL shader (`src/portrait/`): depth parallax, breathing at the chest only, blinks, candle flicker, and a lean toward the table on your turn. The shader only moves and relights the painted pixels. The state follows the game (`portraitStateFor` in `src/portrait/state.js`): betting is idle, your turn and the Bite lean in, a bust sits back.
+
+- Reduced motion (`prefers-reduced-motion`): a still portrait. Only the short light fades remain.
+- No WebGL: the still painting, with no shader.
+- Only the current floor's dealer textures load (`assets/dealers/<id>/`, about 120 KB each).

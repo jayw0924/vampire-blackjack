@@ -23,6 +23,7 @@
   <link rel="preload" href="assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="src/fonts.css">
   <link rel="stylesheet" href="src/style.css">
+  <link rel="stylesheet" href="src/dealers.css">
 </head>
 <body>
   <main id="parlor">
@@ -50,23 +51,32 @@
       </div>
       <p id="room" class="visually-hidden"></p>
       <div id="backdrop" aria-hidden="true"></div>
-      <div id="felt">
-        <div id="far">
-          <figure id="lord">
-            <div id="lord-frame" data-portrait="set">
-              <img id="lord-portrait" data-fallback="assets/lord.webp" width="512" height="768" alt="">
-            </div>
-            <figcaption id="lord-caption" class="visually-hidden">Lord Vesper</figcaption>
-          </figure>
-          <div id="candles" aria-hidden="true"></div>
-          <div id="plate">
-            <p id="plate-name" aria-hidden="true">The Steward</p>
-            <p id="rule"></p>
-            <p id="message" role="status"></p>
-            <p id="remark"></p>
-            <p id="story"></p>
-            <p id="hint"></p>
+      <figure id="lord">
+        <div id="lord-frame" data-portrait="set">
+          <div id="lean">
+            <img id="lord-portrait" data-fallback="assets/lord.webp" width="512" height="768" alt="">
+            <canvas id="gl" aria-hidden="true"></canvas>
           </div>
+        </div>
+        <figcaption id="lord-caption" class="visually-hidden">Lord Vesper</figcaption>
+      </figure>
+      <div id="shade" aria-hidden="true"></div>
+      <div id="occl" aria-hidden="true"></div>
+      <div id="plate">
+        <p id="plate-name" aria-hidden="true">The Steward</p>
+        <p id="plate-epithet" aria-hidden="true"></p>
+        <p id="message" role="status"></p>
+        <p id="rule"></p>
+        <p id="remark"></p>
+        <p id="story"></p>
+        <p id="hint"></p>
+      </div>
+      <div id="felt">
+        <div class="lay" id="key" aria-hidden="true"></div>
+        <div class="lay" id="cglow" aria-hidden="true"></div>
+        <div class="lay" id="rimshade" aria-hidden="true"></div>
+        <div id="far">
+          <div id="candles" aria-hidden="true"></div>
           <section id="dealer-rail" aria-label="The dealer">
             <h2 id="dealer-title" class="visually-hidden">The Steward</h2>
             <div class="cardrow">
@@ -75,6 +85,7 @@
             </div>
           </section>
         </div>
+        <div id="relics" role="group" aria-label="Relics"></div>
         <div id="stake" aria-hidden="true"></div>
         <p id="stamp" aria-hidden="true"></p>
         <div id="near">
@@ -85,7 +96,6 @@
             <div id="bite-slot" aria-live="polite"></div>
           </section>
           <div id="bar">
-          <div id="relics" role="group" aria-label="Relics"></div>
           <div id="controls">
             <div id="betting">
               <button id="bet-down" type="button" aria-label="Lower stake" aria-keyshortcuts="-" title="Lower stake (-)"><span class="lbl">Lower stake</span><span class="sym" aria-hidden="true">−</span></button>

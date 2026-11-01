@@ -1,0 +1,336 @@
+/* The living dealers: a room, not a frame. The dealer sits big behind the far edge of the table,
+   lit by candles and an off-screen key light (no lamp, no beam), over the floor's plate. The table is the
+   full oval. Everything here only re-seats elements the game already has. */
+:root {
+  --felt-top: 49svh;
+  --felt-bot: 26px;
+  --felt-w: min(1000px, 94vw);
+  --card-h: clamp(74px, 11.4svh, 100px);
+  --card-w: calc(var(--card-h) * 0.7);
+  --card-overlap: calc(var(--card-w) * 0.38);
+  --kdim: 1;
+}
+
+body { min-height: 100svh; background: #030102; }
+#parlor { max-width: none; margin: 0; padding: 0; }
+#manor,
+body[data-room] #manor {
+  min-height: 100svh;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #030102;
+  overflow: hidden;
+  isolation: isolate;
+}
+#manor::before { display: none; }
+
+/* header: whispers over the room */
+#frame-top,
+body[data-room] #frame-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 12;
+  margin: 0;
+  padding: clamp(8px, 1.6svh, 14px) clamp(14px, 3vw, 40px) 0;
+  background: linear-gradient(180deg, rgba(3, 1, 2, 0.8), transparent);
+  border: 0;
+}
+#topline { display: contents; }
+#floor-name, #dawn-left {
+  position: absolute;
+  z-index: 8;
+  top: clamp(58px, 7.4svh, 66px);
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+#floor-name { left: clamp(14px, 3vw, 40px); color: rgba(196, 165, 116, 0.8); }
+#dawn-left { right: clamp(14px, 3vw, 40px); color: rgba(214, 190, 150, 0.7); }
+
+/* the room's plate, dim, behind everything */
+#backdrop {
+  position: absolute;
+  inset: -4%;
+  z-index: 0;
+  background-position: center 30%;
+  background-size: cover;
+  filter: brightness(0.6) saturate(0.85);
+  transform: scale(1.04);
+}
+#backdrop[data-set="true"] { opacity: 0.75; }
+
+/* ---- the dealer, seated behind the far edge of the table ---- */
+#lord {
+  position: absolute;
+  left: 50%;
+  top: 2.5svh;
+  z-index: 1;
+  height: 84svh;
+  aspect-ratio: 2 / 3;
+  margin: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+  /* feathered into the room on every side, so the painting's own backdrop never shows an edge */
+  --fm: linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.35) 5%, #000 20%, #000 80%, rgba(0, 0, 0, 0.35) 95%, transparent 100%),
+    linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.35) 4%, #000 14%);
+  -webkit-mask-image: var(--fm);
+  -webkit-mask-composite: source-in;
+  mask-image: var(--fm);
+  mask-composite: intersect;
+}
+#lord::before { display: none; }
+#lord-frame {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+  transition: opacity 260ms linear;
+}
+#lord-frame.swap { opacity: 0; }
+#lean { position: absolute; inset: 0; transform-origin: 50% 64%; will-change: transform; }
+#lord-portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+#gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; }
+#lord-frame[data-gl="ready"] #gl { opacity: 1; }
+#lord-frame[data-gl="ready"] #lord-portrait { visibility: hidden; }
+
+/* the room falls into black behind him; centred on his face, not on a lamp */
+#shade {
+  position: absolute;
+  left: 50%;
+  top: 27svh;
+  z-index: 2;
+  width: 1500px;
+  height: 1250px;
+  margin: -625px 0 0 -750px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(3, 1, 2, 0) 0, rgba(3, 1, 2, 0) 16%, rgba(3, 1, 2, 0.5) 29%, rgba(3, 1, 2, 0.86) 39%, rgba(3, 1, 2, 0.97) 50%);
+  box-shadow: 0 0 0 160vmax rgba(3, 1, 2, 0.97);
+  pointer-events: none;
+  will-change: transform;
+}
+/* where the table cuts him off: it throws a little shadow up his chest */
+#occl {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--felt-top) - 12svh);
+  height: 12svh;
+  z-index: 2;
+  background: linear-gradient(180deg, transparent, rgba(3, 1, 2, 0.75));
+  pointer-events: none;
+}
+
+/* ---- his voice: name, epithet, line, rule ---- */
+#plate {
+  position: absolute;
+  left: clamp(20px, 5vw, 80px);
+  top: 16svh;
+  z-index: 7;
+  width: min(23vw, 300px);
+  max-width: none;
+  margin: 0;
+  text-align: left;
+  pointer-events: none;
+}
+#plate-name { margin: 0; text-align: left; }
+#plate-epithet {
+  margin: 0.2rem 0 0.7rem;
+  color: rgba(214, 190, 150, 0.78);
+  font-size: 1.02rem;
+  font-style: italic;
+}
+#plate-epithet:empty { display: none; }
+#plate #message { text-align: left; font-size: clamp(1.15rem, 1.9vw, 1.55rem); text-shadow: 0 2px 14px #000; }
+#plate #rule {
+  margin: 0.8rem 0 0;
+  color: rgba(214, 190, 150, 0.7);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  line-height: 1.5;
+  text-align: left;
+  text-transform: uppercase;
+}
+#plate #remark, #plate #story, #plate #hint { text-align: left; max-width: none; text-shadow: 0 1px 8px #000; }
+#plate #hint { margin-top: 10px; padding-left: 10px; font-size: 0.95rem; }
+
+/* ---- the table: the full oval, lit by the key light and the candles ---- */
+#felt {
+  position: relative;
+  z-index: 3;
+  width: var(--felt-w);
+  min-height: calc(100svh - var(--felt-top) - var(--felt-bot) - 1px);
+  margin: var(--felt-top) auto var(--felt-bot);
+  padding: clamp(14px, 2.4svh, 22px) clamp(36px, 5vw, 64px) clamp(12px, 2svh, 18px);
+  border-radius: 240px;
+  border: 1px solid #8a7048;
+  background:
+    radial-gradient(circle at 73% 40%, transparent 25px, rgba(0, 0, 0, 0.11) 26px, rgba(0, 0, 0, 0.11) 29px, transparent 33px),
+    radial-gradient(ellipse 36% 26% at 82% 78%, rgba(20, 6, 10, 0.5), transparent 70%),
+    radial-gradient(ellipse 20% 14% at 24% 70%, rgba(255, 200, 150, 0.05), transparent 70%),
+    radial-gradient(ellipse 85% 100% at 50% 8%, #6a2632 0%, #521b26 34%, #34121a 66%, #14080c 100%);
+  box-shadow: 0 0 0 11px #1a1014, 0 0 0 12px #8a7048, 0 -14px 40px rgba(3, 1, 2, 0.7), 0 22px 36px #050203,
+    inset 0 24px 36px rgba(243, 230, 208, 0.05), inset 0 0 70px #14080c;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+#felt .lay { position: absolute; inset: 0; z-index: 1; border-radius: inherit; pointer-events: none; }
+/* key light: off-screen, slightly above the front. It lights the far half of the felt and falls off toward you. */
+#key {
+  background:
+    radial-gradient(ellipse 62% 56% at 50% 4%, rgba(255, 206, 150, 0.3), rgba(255, 190, 130, 0.11) 52%, transparent 80%),
+    linear-gradient(180deg, rgba(255, 214, 170, 0.09), transparent 50%);
+  opacity: var(--kdim);
+  mix-blend-mode: screen;
+}
+/* candle light: a warm pool on the felt around the dawn clock, flickering together */
+#cglow {
+  will-change: opacity;
+  background:
+    radial-gradient(ellipse 30% 34% at var(--cx, 26%) var(--cy, 22%), rgba(255, 160, 80, 0.42), rgba(255, 130, 60, 0.14) 55%, transparent 80%),
+    radial-gradient(ellipse 58% 60% at var(--cx, 26%) var(--cy, 22%), rgba(255, 140, 70, 0.14), transparent 72%);
+  mix-blend-mode: screen;
+}
+#rimshade { box-shadow: inset 0 0 44px 6px rgba(3, 1, 2, 0.55), inset 0 -20px 40px rgba(3, 1, 2, 0.35); }
+/* the rim catches the key light along its top edge */
+#felt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  padding: 2px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 226, 180, 0.55), rgba(255, 210, 150, 0.12) 36%, transparent 60%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: var(--kdim);
+}
+#far, #near { position: static; z-index: 2; }
+#far { display: flex; justify-content: center; min-height: calc(var(--card-h) + 8px); }
+#dealer-rail, #near, #player-rail { position: relative; z-index: 2; }
+#near { display: flex; flex-direction: column; align-items: center; gap: clamp(4px, 0.8svh, 8px); }
+
+/* the dawn clock stands on the table, top-left; each flame has its own breath (--f, --fx from the portrait layer) */
+#candles {
+  position: absolute;
+  left: clamp(88px, 9.5%, 150px);
+  top: clamp(22px, 4.6svh, 40px);
+  z-index: 2;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: clamp(7px, 0.9vw, 12px);
+  width: auto;
+  max-width: none;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  border: 0;
+}
+.candle { width: 7px; height: clamp(18px, 3.4svh, 26px); background: linear-gradient(90deg, #c9b99d, #f3e6d0 50%, #b4a285); box-shadow: 2px 0 0 rgba(5, 2, 3, 0.5); }
+.candle.lit { height: clamp(18px, 3.4svh, 26px); background: linear-gradient(90deg, #c9b99d, #f3e6d0 50%, #b4a285); }
+.candle::before { left: 3px; top: -5px; width: 1px; height: 5px; }
+.candle.lit::after {
+  left: 50%;
+  top: -17px;
+  width: 10px;
+  height: 17px;
+  margin-left: -5px;
+  border-radius: 50% 50% 45% 45% / 70% 70% 30% 30%;
+  background: radial-gradient(ellipse at 50% 72%, #fff6dc 0, #ffcf7a 42%, rgba(255, 150, 60, 0) 80%);
+  box-shadow: 0 0 14px 5px rgba(255, 170, 80, 0.32);
+  transform-origin: 50% 100%;
+  transform: scale(var(--fx, 1), var(--f, 1));
+  opacity: calc(0.6 + var(--f, 1) * 0.4);
+  animation: none !important;
+  will-change: transform, opacity;
+}
+
+/* the controls bar: as shipped, centred in the table */
+#bar { position: relative; z-index: 5; display: flex; align-items: center; justify-content: center; margin: 0; }
+#controls { width: 100%; }
+
+/* relics: tokens on the felt's corner arc (positions come from src/layout.js) */
+#relics { position: absolute; inset: 0; z-index: 4; display: block; margin: 0; pointer-events: none; }
+#relics:empty { display: none; }
+#relics .relic { position: absolute; margin: 0; pointer-events: auto; }
+
+#cup { top: calc(var(--felt-top) - 4svh); right: clamp(14px, 2.6vw, 34px); z-index: 6; }
+
+#vignette { z-index: 40; }
+
+@media (max-width: 900px) {
+  #cup { right: 10px; top: calc(var(--felt-top) - 6.5svh); }
+}
+
+@media (max-width: 640px) {
+  :root { --felt-top: 46svh; --felt-bot: 14px; --felt-w: calc(100vw - 28px); --card-h: clamp(58px, 8.4svh, 72px); }
+  #lord { top: 7svh; height: max(50svh, min(66svh, 130vw)); }
+  #shade { top: 26svh; }
+  #plate {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: calc(100% - var(--felt-top) + 12px);
+    width: auto;
+    padding: 0 22px;
+    text-align: center;
+  }
+  #plate-name, #plate-epithet { display: none; }
+  #plate #message { text-align: center; font-size: 1.15rem; min-height: 0; }
+  #plate #rule, #plate #remark, #plate #story, #plate #hint { text-align: center; }
+  #plate #rule { margin-top: 2px; font-size: 0.62rem; }
+  #plate #hint { padding-left: 0; font-size: 0.85rem; }
+  #felt { border-radius: 200px; padding: 16px 22px 30px; gap: 4px; }
+  #bar { position: static; margin: 0; padding: 0; background: none; }
+  #controls { position: static; margin: 0; padding: 0; background: none; }
+  #candles { left: 50%; transform: translateX(-50%); top: 30px; gap: 7px; }
+  /* the blood sits under the header, to the right of the floor line: clear of the face and the pendant */
+  #cup {
+    position: absolute;
+    top: 52px;
+    right: 14px;
+    left: auto;
+    z-index: 9;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 2px 8px;
+    width: 176px;
+  }
+  #vial { flex: none; width: 84px; height: 12px; padding: 2px; border-radius: 6px; flex-direction: row; }
+  #blood { order: 0; width: auto; }
+  #quota, #ledger { order: 2; width: 100%; margin: 0; text-align: right; font-size: 0.62rem; letter-spacing: 0.1em; min-width: 0; }
+  #ledger { min-height: 0; }
+  #ledger:empty { display: none; }
+  #far { margin-top: 56px; }
+  #floor-name { top: 52px; left: 16px; right: auto; letter-spacing: 0.14em; font-size: 0.62rem; }
+  #dawn-left { top: 70px; left: 16px; right: auto; letter-spacing: 0.14em; font-size: 0.62rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #lean { transition: none; transform: none !important; }
+  #lord-frame { transition: none; }
+  .candle.lit::after { transition: none; }
+}

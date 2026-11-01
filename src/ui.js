@@ -9,6 +9,10 @@ import { bloodLabel, candleStates, present, vialFilled } from './render.js';
 import { RELIC_IDS } from './relics.js';
 import { act as runAct, createRun, isTerminal, runView } from './run.js';
 import { parseStartOptions } from './debug.js';
+import { BOSSES } from './bosses.js';
+import { relicSpots } from './layout.js';
+import { createPortrait } from './portrait/portrait.js';
+import { portraitStateFor } from './portrait/state.js';
 import { isMuted, setBlood, setCue, sfx, snap, toggleMute } from './score.js';
 import { TIMING, needsStaging, stageSteps } from './stage.js';
 
@@ -357,6 +361,31 @@ function tipFor(token, relic, ms) {
 let relicSig = '';
 let known = new Set();
 
+let portraitLayer = null;
+
+// Seat the relic tokens on the felt's corner arc, and point the candle glow at the dawn clock.
+function layoutRoom() {
+  const felt = must('felt');
+  const w = felt.clientWidth;
+  const h = felt.clientHeight;
+  if (!w || !h) return;
+  const tokens = Array.from(must('relics').children);
+  if (tokens.length) {
+    const mobile = Boolean(globalThis.matchMedia?.('(max-width: 640px)').matches);
+    const size = tokens[0].offsetWidth || 44;
+    relicSpots(tokens.length, { w, h }, size, mobile).forEach((spot, i) => {
+      tokens[i].style.left = `${spot.left}px`;
+      tokens[i].style.top = `${spot.top}px`;
+    });
+  }
+  const clock = must('candles').getBoundingClientRect();
+  const box = felt.getBoundingClientRect();
+  if (clock.width) {
+    felt.style.setProperty('--cx', `${(((clock.left + clock.width / 2 - box.left) / w) * 100).toFixed(1)}%`);
+    felt.style.setProperty('--cy', `${(((clock.top + clock.height / 2 - box.top) / h) * 100).toFixed(1)}%`);
+  }
+}
+
 function paintRelics(view, onUse) {
   const box = must('relics');
   const sig = view.relics.map((r) => r.id).join(',');
@@ -420,6 +449,7 @@ function paintRelics(view, onUse) {
 
 // ---- the dawn clock ----
 let candlesWere = null;
+let candlesFed = -1;
 
 function paintCandles(view) {
   const el = must('candles');
@@ -444,6 +474,10 @@ function paintCandles(view) {
     if (was === 'lit' && now === 'stub') mark.classList.add('snuffed');
   });
   if (candlesWere !== null && candlesWere > lit) sfx('snuff');
+  if (portraitLayer && (candlesWere !== lit || candlesFed !== states.length)) {
+    portraitLayer.setCandles(Array.from(el.children).filter((mark) => mark.classList.contains('lit')));
+    candlesFed = states.length;
+  }
   candlesWere = lit;
   el.setAttribute('aria-label', view.dawnLine || '');
   if (view.dawnLine) el.setAttribute('role', 'img');
@@ -612,6 +646,12 @@ function paint(view, { hold = false, onUse, onPick } = {}) {
   setCue(view.cue);
   if (view.bossId) {
     setPortrait(view);
+    const boss = BOSSES[view.bossId];
+    must('plate-epithet').textContent = boss?.portraitFx?.epithet || '';
+    if (portraitLayer && boss) {
+      portraitLayer.setDealer(view.bossId, boss.portraitFx);
+      portraitLayer.setState(portraitStateFor(view));
+    }
     must('manor').dataset.floor = String(view.floor);
     if (backdropFloor !== view.floor) {
       backdropFloor = view.floor;
@@ -654,6 +694,7 @@ function paint(view, { hold = false, onUse, onPick } = {}) {
     must(id).disabled = !view.enabled.includes(action);
   }
   paintPick(view, onPick || (() => {}));
+  layoutRoom();
 }
 
 let backdropFloor = null;
@@ -866,6 +907,27 @@ function boot() {
     if (!must('settings-panel').hidden && !event.target.closest('#settings-panel, #settings')) closeSettings();
   });
   window.addEventListener('scroll', hideTip, { passive: true });
+
+  // The living portrait: WebGL when the browser has it, the still painting when it does not.
+  // prefers-reduced-motion keeps the light fades and drops every movement.
+  const motionQuery = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
+  portraitLayer = createPortrait({
+    frame: must('lord-frame'),
+    lean: must('lean'),
+    canvas: must('gl'),
+    shade: must('shade'),
+    felt: must('felt'),
+    glow: must('cglow'),
+  }, {
+    reducedMotion: Boolean(motionQuery?.matches),
+    onMode: (mode) => {
+      document.documentElement.dataset.renderer = mode.renderer;
+      document.documentElement.dataset.motion = mode.motion ? 'on' : 'off';
+    },
+  });
+  motionQuery?.addEventListener?.('change', (event) => portraitLayer.setReducedMotion(event.matches));
+  window.addEventListener('resize', layoutRoom);
+  document.fonts?.ready.then(layoutRoom);
 
   const portrait = must('lord-portrait');
   portrait.addEventListener('load', () => {
